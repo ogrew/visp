@@ -1,0 +1,7 @@
+;; Roswell launcher script
+(progn
+  (load "package.lisp")
+  (load "util.lisp")
+  (load "ffmpeg.lisp")
+  (load "main.lisp")
+  (visp:main))
