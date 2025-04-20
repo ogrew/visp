@@ -5,4 +5,5 @@
   :license "MIT"
   :depends-on (:uiop)
   :components ((:file "package")
+               (:file "util")
                (:file "main")))

@@ -5,6 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 (load (merge-pathnames "package.lisp" *load-truename*))
+(load (merge-pathnames "util.lisp" *load-truename*))
 (load (merge-pathnames "main.lisp" *load-truename*))
 
 (defun main (&rest args)
