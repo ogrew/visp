@@ -1,7 +1,17 @@
-;; Roswell launcher script
-(progn
-  (load "package.lisp")
-  (load "util.lisp")
-  (load "ffmpeg.lisp")
-  (load "main.lisp")
-  (visp:main))
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+;; First load the files to define the package and functions
+(load (merge-pathnames "package.lisp" *load-truename*))
+(load (merge-pathnames "main.lisp" *load-truename*))
+
+;; Define the entry point function that the script will call
+(defun main (&rest args)
+  ;; Print the arguments we received for debugging
+  (format t "Debug: Script received args: ~S~%" args)
+  
+  ;; Call the visp:main function with our args
+  (apply (find-symbol "MAIN" :visp) (list args)))
