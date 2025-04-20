@@ -5,6 +5,8 @@
   (unless args
     (setf args (uiop:command-line-arguments)))
 
+  (setf args (visp::clean-args args))  ; 全角スペースを正規化
+
   ;; オプション用の変数
   (let ((input nil)
         (res nil)
@@ -45,8 +47,10 @@
       (when mute
         (setf cmd (append cmd (list "-an"))))
 
-      ;; 出力ファイル名（仮）
-      (setf cmd (append cmd (list "output.mp4")))
+      ;; 出力ファイル名
+      (let ((output (visp::generate-output-filename input res mute)))
+        ;; build ffmpeg command
+        (setf cmd (append cmd (list output))))
 
       ;; 実行
       (format t "[INFO] Running: ~{~a ~}~%" cmd)
