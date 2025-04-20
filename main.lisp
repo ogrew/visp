@@ -1,5 +1,27 @@
 (in-package :visp)
 
+(defun build-cmd (input scale codec-info mute output)
+  "Constructs the ffmpeg command line list."
+  (let ((cmd (list "ffmpeg" "-y" "-i" input)))
+
+    ;; 解像度オプション
+    (when scale
+      (destructuring-bind (w . h) scale
+        (setf cmd (append cmd (list "-vf" (format nil "scale=~A:~A" w h))))))
+
+    ;; コーデックオプション
+    (when codec-info
+      (let ((encoder (getf codec-info :encoder)))
+        (setf cmd (append cmd (list "-c:v" encoder)))))
+
+    ;; muteオプション
+    (when mute
+      (setf cmd (append cmd (list "-an"))))
+
+    ;; 出力ファイル名
+    (setf cmd (append cmd (list output)))
+    cmd))
+
 (defun main (&optional args)
   ;; 引数がなければコマンドラインから取得
   (unless args
@@ -10,6 +32,7 @@
   ;; オプション用の変数
   (let ((input nil)
         (res nil)
+        (codec nil)
         (mute nil))
 
     ;; 1つずつ処理しながら key-value や boolean を判定
@@ -24,34 +47,40 @@
              (when (< (1+ i) (length args))
                (setf res (nth (1+ i) args))
                (incf i)))
+             ((string= key "--codec")
+             (when (< (1+ i) (length args))
+               (setf codec (nth (1+ i) args))
+               (incf i)))
              ((string= key "--mute")
               (setf mute t))
-             ;; 無視：不明なオプションは今はスルー。将来警告を追加しても良い。
-             )))
+             (t
+              (format t "Error: visp does not support the option '~a'.~%" key)
+              (uiop:quit 1)))
+      ))
 
     ;; 必須チェック
     (unless input
       (format t "Usage: visp --input <filename> [--res 4k] [--mute]~%")
       (return-from main))
 
-    ;; 解像度変換（指定されていれば）
     (let* ((scale (and res (visp::resolution-from-key res)))
-           (cmd (list "ffmpeg" "-y" "-i" input)))
+           (codec-info (visp::codec-info-from-key codec)))
 
-      ;; scale オプション
-      (when scale
-        (destructuring-bind (w . h) (cdr scale)
-          (setf cmd (append cmd (list "-vf" (format nil "scale=~A:~A" w h))))))
+    ;; 引数のコーデックが無効だった場合,終了
+    (when (and codec (not codec-info))
+      (format t "Error: visp does not support the codec '~a'.~%" codec)
+      (uiop:quit 1))
 
-      ;; mute オプション
-      (when mute
-        (setf cmd (append cmd (list "-an"))))
+    ;; システムでサポートしていないエンコーダだった場合
+    (when (and codec-info
+              (not (visp::encoder-available-p (getf codec-info :encoder))))
+      (format t "Error: ffmpeg on this system does not support the encoder '~a'.~%"
+              (getf codec-info :encoder))
+      (uiop:quit 1))
 
-      ;; 出力ファイル名
-      (let ((output (visp::generate-output-filename input res mute)))
-        ;; build ffmpeg command
-        (setf cmd (append cmd (list output))))
+    (let* ((ext (getf codec-info :ext))
+       (output (visp::generate-output-filename input res mute ext))
+       (cmd (visp::build-cmd input (cdr scale) codec-info mute output))) ; ← scaleはcdrで渡す
 
-      ;; 実行
       (format t "[INFO] Running: ~{~a ~}~%" cmd)
-      (uiop:run-program cmd :output t :error-output t))))
+      (uiop:run-program cmd :output t :error-output t)))))
