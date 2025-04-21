@@ -5,8 +5,8 @@
   :license "MIT"
   :depends-on (:uiop)
   :components ((:file "package")
+               (:file "options")
                (:file "util")
                (:file "ffmpeg")
-               (:file "options")
                (:file "cli")
                (:file "main")))
