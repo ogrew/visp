@@ -16,5 +16,9 @@
            (output (visp:generate-output-filename opts ext)) ;;出力ファイル名作成
            (cmd (visp:build-cmd opts output)))               ;;コマンド構築
 
-      (format t "[INFO] Running: ~{~a ~}~%" cmd)              ;;実行ログ
-      (uiop:run-program cmd :output t :error-output t))))
+    (if (visp-options-dry-run opts)
+        (format t "~a ~{~a ~}~%" (log-tag "dry-run") cmd)
+        (progn
+          (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
+          (uiop:run-program cmd :output t :error-output t)))
+      )))

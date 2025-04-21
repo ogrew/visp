@@ -5,6 +5,7 @@
   :license "MIT"
   :depends-on (:uiop)
   :components ((:file "package")
+               (:file "log")
                (:file "options")
                (:file "util")
                (:file "ffmpeg")

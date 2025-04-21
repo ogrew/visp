@@ -21,6 +21,9 @@
    :string-replace
    :clean-args
 
+   ;; log.lisp
+   :log-tag
+
    ;; options.lisp
    :parse-args-to-options
    :make-visp-options
@@ -31,4 +34,5 @@
    :visp-options-codec-info
    :visp-options-fps
    :visp-options-mute
+   :visp-options-dry-run
    ))

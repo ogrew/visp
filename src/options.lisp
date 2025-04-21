@@ -4,10 +4,12 @@
   input
   res
   codec
-  fps
-  mute
   codec-info
-  scale)
+  scale
+  fps
+  mute      ;boolean
+  dry-run   ;boolean
+)
 
 (defun parse-args-to-options (args)
   "Given raw args, return a filled visp-options struct or quit on invalid option."
@@ -33,7 +35,9 @@
                     (incf i)))
                  ((string= key "--mute")
                   (setf (visp-options-mute opts) t))
+                 ((string= key "--dry-run")
+                  (setf (visp-options-dry-run opts) t))
                  (t
-                  (format t "Error: visp does not support the option '~a'.~%" key)
+                  (format t "~a visp does not support the option '~a'.~%" (log-tag "error") key)
                   (uiop:quit 1)))))
     opts))
