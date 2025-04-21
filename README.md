@@ -11,13 +11,13 @@ Originally created as a Lisp learning project, **Visp** has grown into a practic
 
 ```bash
 # Downscale a 4K video to 1080p and remove audio
-./visp --input sample_4k.mp4 --res fhd --mute
+visp --input sample_4k.mp4 --res fhd --mute
 
 # Transcode to HAP codec, preserving resolution and audio
-./visp --input sample.mov --codec hap
+visp --input sample.mov --codec hap
 
 # Preview the ffmpeg command without running it
-./visp --input sample.mov --res 2k --codec prores --dry-run
+visp --input sample.mov --res 2k --codec prores --dry-run
 ```
 
 Output filenames are automatically determined based on options.
@@ -48,10 +48,20 @@ Requires [Roswell](https://github.com/roswell/roswell) and [SBCL](http://www.sbc
 git clone https://github.com/ogrew/visp.git
 cd visp
 ros build visp.ros
-chmod +x visp
 ```
 
-This will generate a single binary executable called visp.
+To run **Visp** from anywhere, move the binary into a directory included in your $PATH, such as /usr/local/bin:
+
+```bash
+sudo mv visp /usr/local/bin/
+sudo chmod +x /usr/local/bin/visp
+```
+
+Then you can use it like this:
+
+```bash
+visp --help
+```
 
 ## Requirements
 
