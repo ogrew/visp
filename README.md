@@ -1,5 +1,10 @@
 # Visp
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/22a5fa59-f266-485c-aa3b-e83ddb992c7c" />
+</p>
+
+
 ## Overview
 
 **Visp** is a minimal command-line wrapper around [ffmpeg](https://ffmpeg.org), written in [Common Lisp](https://common-lisp.net) for both educational and practical use.  
