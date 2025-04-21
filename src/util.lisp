@@ -1,5 +1,14 @@
 (in-package :visp)
 
+(defstruct visp-options
+  input
+  res
+  codec
+  fps
+  mute
+  codec-info
+  scale)
+
 (defconstant +resolution-map+
   '(("hd"     . (1280 . 720))
     ("720p"   . (1280 . 720))
@@ -24,16 +33,21 @@
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
 
-(defun generate-output-filename (input res mute &optional ext)
-  "Return a filename like sample_fhd_noSound.mp4 based on input/res/mute."
-  (let* ((base (file-namestring input))
+(defun generate-output-filename (options &optional ext)
+  "Generate output filename based on visp-options and optional ext override."
+  (let* ((input (visp-options-input options))
+         (base (file-namestring input))
          (dot-pos (position #\. base :from-end t))
          (name (subseq base 0 dot-pos))
-          ;; codec-infoのextがあればそれを,なければinputの拡張子を抽出
+         ;; 拡張子は codec-info の ext 優先、なければ元ファイルの拡張子
          (ext (or ext (subseq base dot-pos)))
+         (res (visp-options-res options))
+         (fps (visp-options-fps options))
+         (mute (visp-options-mute options))
          (res-suffix (if res (format nil "_~a" res) ""))
+         (fps-suffix (if fps (format nil "_~afps" fps) ""))
          (mute-suffix (if mute "_noSound" "")))
-    (apply #'concatenate 'string (list name res-suffix mute-suffix ext))))
+    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix ext))))
 
 (defun string-replace (str from to)
   "Replace all instances of character FROM with TO in STR."
