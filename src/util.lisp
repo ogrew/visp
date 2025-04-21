@@ -1,14 +1,5 @@
 (in-package :visp)
 
-(defstruct visp-options
-  input
-  res
-  codec
-  fps
-  mute
-  codec-info
-  scale)
-
 (defconstant +resolution-map+
   '(("hd"     . (1280 . 720))
     ("720p"   . (1280 . 720))
@@ -18,7 +9,7 @@
     ("4k"     . (3840 . 2160))
     ("8k"     . (7680 . 4320))))
 
-(defparameter +codec-map+
+(defconstant +codec-map+
   '(("h264"  . (:encoder "libx264"  :ext ".mp4"))
     ("h265"  . (:encoder "libx265"  :ext ".mp4"))
     ("hevc"  . (:encoder "libx265"  :ext ".mp4")) ; alias
@@ -61,9 +52,3 @@
             (string-downcase
              (visp::string-replace s #\u3000 #\Space)))
           args))
-
-(defun encoder-available-p (name)
-  "Return T if the given encoder name appears in `ffmpeg -encoders` output."
-  (let ((output (uiop:run-program (list "ffmpeg" "-hide_banner" "-encoders")
-                                  :output :string)))
-    (search name output :test #'string=)))

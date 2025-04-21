@@ -4,7 +4,9 @@
   :author "ogrew"
   :license "MIT"
   :depends-on (:uiop)
-  :pathname "src"
   :components ((:file "package")
                (:file "util")
+               (:file "ffmpeg")
+               (:file "options")
+               (:file "cli")
                (:file "main")))
