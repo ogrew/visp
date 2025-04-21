@@ -21,9 +21,9 @@
 
   (let ((res (visp-options-res opts)))
     (when res
-      (let ((scale (visp::resolution-from-key res)))
-        (if scale
-            (setf (visp-options-scale opts) scale)
+      (let ((pair (visp:resolution-from-key res)))
+        (if pair
+            (setf (visp-options-scale opts) (cdr pair))
             ;; [error]対応していない解像度を指定された場合は中断
             (progn
               (format t "Error: visp does not support the resolution '~a'.~%" res)
@@ -35,14 +35,14 @@
         (format t "Error: --fps must be a number, but got '~a'.~%" fps)
         (uiop:quit 1))))
 
-  (let ((codec-info (visp::codec-info-from-key (visp-options-codec opts))))
+  (let ((codec-info (visp:codec-info-from-key (visp-options-codec opts))))
     ;; [error]codec-infoが無効だった場合は中断
     (when (and (visp-options-codec opts) (not codec-info))
       (format t "Error: visp does not support the codec '~a'.~%" (visp-options-codec opts))
       (uiop:quit 1))
     ;; [error]利用環境で未サポートのコーデック
     (when (and codec-info
-               (not (visp::encoder-available-p (getf codec-info :encoder))))
+               (not (visp:encoder-available-p (getf codec-info :encoder))))
       (format t "Error: ffmpeg on this system does not support the encoder '~a'.~%"
               (getf codec-info :encoder))
       (uiop:quit 1))

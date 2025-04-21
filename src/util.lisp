@@ -50,5 +50,5 @@
   "Normalize args: replace full-width spaces and downcase all."
   (mapcar (lambda (s)
             (string-downcase
-             (visp::string-replace s #\u3000 #\Space)))
+             (visp:string-replace s #\u3000 #\Space)))
           args))
