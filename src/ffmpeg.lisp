@@ -34,5 +34,9 @@
     (search name output :test #'string=)))
 
 (defun ffmpeg-available-p ()
-  "Check if ffmpeg is available in PATH."
-  (uiop:run-program "which ffmpeg" :output nil :ignore-error-status t))
+  "Check if `ffmpeg` is available in PATH."
+  (ignore-errors
+    (uiop:run-program '("ffmpeg" "-version")
+                      :ignore-error-status t
+                      :output nil :error-output nil)
+    t))

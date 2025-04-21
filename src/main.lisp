@@ -2,8 +2,8 @@
 
 (defun main (&optional args)
 
-  (unless (visp:ffmpeg-available-p)
-    (format t "~a ffmpeg not found in your system. Please install ffmpeg first.~%" (visp:log-tag "error"))
+  (unless (ffmpeg-available-p)
+    (format t "~a ffmpeg not found in your system. Please install ffmpeg first.~%" (log-tag "error"))
     (uiop:quit 1))
 
   ;; 引数がなければコマンドラインから取得
