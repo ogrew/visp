@@ -13,6 +13,7 @@
    ;; ffmpeg.lisp
    :build-cmd
    :encoder-available-p
+   :ffmpeg-available-p
 
    ;; util.lisp
    :resolution-from-key

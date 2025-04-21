@@ -1,6 +1,11 @@
 (in-package :visp)
 
 (defun main (&optional args)
+
+  (unless (visp:ffmpeg-available-p)
+    (format t "~a ffmpeg not found in your system. Please install ffmpeg first.~%" (visp:log-tag "error"))
+    (uiop:quit 1))
+
   ;; 引数がなければコマンドラインから取得
   (unless args (setf args (uiop:command-line-arguments)))
   (setf args (visp:clean-args args))
@@ -21,4 +26,4 @@
         (progn
           (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
           (uiop:run-program cmd :output t :error-output t)))
-      )))
+    )))

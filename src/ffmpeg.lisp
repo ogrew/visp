@@ -32,3 +32,7 @@
   (let ((output (uiop:run-program (list "ffmpeg" "-hide_banner" "-encoders")
                                   :output :string)))
     (search name output :test #'string=)))
+
+(defun ffmpeg-available-p ()
+  "Check if ffmpeg is available in PATH."
+  (uiop:run-program "which ffmpeg" :output nil :ignore-error-status t))
