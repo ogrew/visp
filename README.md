@@ -61,6 +61,16 @@ Examples:
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
 
+## TODO
+
+Planned features and improvements for future versions of **Visp**:
+
+- ✅ Add unit tests to improve code reliability and future development.
+- 🌀 Batch mode: Process all video files in a folder with the same options.
+- 🖼 Image sequence to video: Support for turning numbered images (e.g., `%04d.png`) into a single video.
+- 🎞 Export high-quality GIFs using `ffmpeg`'s palette generation.
+- 🧩 Multi-input tiling: Combine up to 4 videos into a 2×2 tiled layout.
+
 ## Build & Setup
 
 Requires [Roswell](https://github.com/roswell/roswell) and [SBCL](http://www.sbcl.org)
