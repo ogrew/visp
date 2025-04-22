@@ -20,54 +20,93 @@
     (unless input
       (format t "Usage: visp --input <filename> [--res 4k] [--mute] ...~%")
       (uiop:quit 1))
-    ;; 対応する拡張子は最低限
-    (let* ((allowed-exts '(".mp4" ".mov" ".flv" ".avi" ".webm"))
-           (filename (file-namestring input))
-           (dot-pos (position #\. filename :from-end t))
-           (ext (if dot-pos (subseq filename dot-pos) "")))
-      (unless (member ext allowed-exts :test #'string-equal)
+
+    (let ((ext (visp:input-extension input))
+           (rev (visp-options-rev opts))
+           (repeat (visp-options-repeat opts)))
+
+      ;; 対応する拡張子は最低限
+      (unless (member ext +allowed-input-extensions+ :test #'string-equal)
         (format t "~a visp does not support the input file extension '~a'.~%"
                 (visp:log-tag "error") ext)
-        (uiop:quit 1))))
+        (uiop:quit 1))
 
-  (let ((loop (visp-options-loop opts)))
-    (when loop
-      (let ((loopi (parse-integer loop :junk-allowed t)))
-        (unless (and (integerp loopi) (>= loopi 1))
-          (format t "~a --loop must be an integer >= 1, but got '~a'. ~%"
-            (log-tag "error") loop)
+      (when rev
+        ;; reverseはmp4かmovしかサポートしない
+        (unless (member ext '(".mp4" ".mov") :test #'string-equal)
+          (format t "~a --reverse option only supports .mov or .mp4 extensions.~%" (visp:log-tag "error"))
           (uiop:quit 1))
-        ;; loopはint型で再設定
-        (setf (visp-options-loop opts) loopi))))
+        ;; reverseはメモリ消費が大きいので警告
+        (format t "~a --reverse may consume a large amount of memory. Consider using small input files.~%"
+          (visp:log-tag "info")))
 
-  (let ((res (visp-options-res opts)))
+      ;; --reverseと--loopの併用禁止
+      (when (and rev repeat)
+        (format t "~a --loop and --reverse options cannot be used together.~%" (visp:log-tag "error"))
+          (uiop:quit 1))
+      
+      ;; 逆再生は不可の観点で音声強制ミュート
+      (when (and rev (not (visp-options-mute opts)))
+        (format t "~a --reverse implies muted audio. Audio will be disabled.~%" (visp:log-tag "info"))
+        (setf (visp-options-mute opts) t))))
+
+  ;; repeatは1以上の整数
+  (let ((repeat (visp-options-repeat opts)))
+    (when repeat
+      (let ((repeati (parse-integer repeat :junk-allowed t)))
+        (unless (and (integerp repeati) (>= repeati 1))
+          (format t "~a --loop must be an integer >= 1, but got '~a'. ~%"
+                  (visp:log-tag "error") repeat)
+          (uiop:quit 1))
+        (setf (visp-options-repeat opts) repeati))))
+
+  (let ((res (visp-options-res opts))
+         (half (visp-options-half opts)))
+    
+    ;; --resと--halfは併用不可
+    (when (and res half)
+      (format t "~a --res and --half cannot be used together.~%" (visp:log-tag "error"))
+      (uiop:quit 1))
+
     (when res
       (let ((pair (visp:resolution-from-key res)))
         (if pair
-            (setf (visp-options-scale opts) (cdr pair))
-            ;; [error]対応していない解像度を指定された場合は中断
-            (progn
-              (format t "~a visp does not support the resolution '~a'.~%" 
-                (log-tag "error") res)
-              (uiop:quit 1))))))
+          (setf (visp-options-scale opts) (cdr pair))
+          ;; [error]対応していない解像度を指定された場合は中断
+          (progn
+            (format t "~a visp does not support the resolution '~a'.~%" 
+              (visp:log-tag "error") res)
+            (uiop:quit 1)))))
+
+    (when half
+      (let ((dims (visp:get-video-dims (visp-options-input opts))))
+        (if dims
+          (destructuring-bind (w . h) dims
+            (setf (visp-options-scale opts)
+              (cons (floor w 2) (floor h 2))))
+          (format t "~a Could not determine resolution for --half. Original size will be used.~%"
+                    (visp:log-tag "warn"))))))
 
   (let ((fps (visp-options-fps opts)))
     (when fps
-      (unless (parse-integer fps :junk-allowed t)
-        (format t "~a --fps must be a number, but got '~a'.~%" 
-                  (log-tag "error") fps)
-        (uiop:quit 1))))
+      (let ((fpsi (parse-integer fps :junk-allowed t)))
+        (unless (and (integerp fpsi) (> fpsi 0))
+          (format t "~a --fps must be a positive integer, but got '~a'.~%" 
+                  (visp:log-tag "error") fps)
+          (uiop:quit 1))
+        ;; 再パースして明示的にintで上書き
+        (setf (visp-options-fps opts) fpsi))))
 
   (let ((codec-info (visp:codec-info-from-key (visp-options-codec opts))))
     ;; [error]codec-infoが無効だった場合は中断
     (when (and (visp-options-codec opts) (not codec-info))
       (format t "~a visp does not support the codec '~a'.~%" 
-                (log-tag "error") (visp-options-codec opts))
+                (visp:log-tag "error") (visp-options-codec opts))
       (uiop:quit 1))
     ;; [error]利用環境で未サポートのコーデック
     (when (and codec-info
                (not (visp:encoder-available-p (getf codec-info :encoder))))
       (format t "~a ffmpeg on this system does not support the encoder '~a'.~%"
-               (log-tag "error") (getf codec-info :encoder))
+               (visp:log-tag "error") (getf codec-info :encoder))
       (uiop:quit 1))
     (setf (visp-options-codec-info opts) codec-info)))

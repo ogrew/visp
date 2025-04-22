@@ -14,8 +14,10 @@
    :build-cmd
    :encoder-available-p
    :ffmpeg-available-p
+   :get-video-dims
 
    ;; util.lisp
+   :input-extension
    :resolution-from-key
    :codec-info-from-key
    :generate-output-filename
@@ -34,7 +36,9 @@
    :visp-options-codec
    :visp-options-codec-info
    :visp-options-fps
-   :visp-options-loop
+   :visp-options-repeat
    :visp-options-mute
+   :visp-options-rev
+   :visp-options-half
    :visp-options-dry-run
    ))

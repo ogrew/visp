@@ -2,25 +2,38 @@
 
 (defun build-cmd (opts output)
   "Construct the ffmpeg command list from visp-options and output filename."
-  (let* ((loop (visp-options-loop opts))
+  (let* ((repeat (visp-options-repeat opts))
          (input (visp-options-input opts))
          (scale (visp-options-scale opts))
          (fps (visp-options-fps opts))
          (mute (visp-options-mute opts))
+         (rev (visp-options-rev opts))
          (codec-info (visp-options-codec-info opts))
+         (filters '())
          (cmd (list "ffmpeg" "-y")))
 
     ;; ループ再生（inputより先に無いといけないらしい）
-    (when loop
+    (when repeat
       (setf cmd (append cmd 
-        (list "-stream_loop" (format nil "~a" (1- loop))))))
+        (list "-stream_loop" (format nil "~a" (1- repeat))))))
 
     (setf cmd (append cmd (list "-i" input)))
 
     ;; 解像度（縦：横）
     (when scale
       (destructuring-bind (w . h) scale
-        (setf cmd (append cmd (list "-vf" (format nil "scale=~A:~A" w h))))))
+        (push (format nil "scale=~A:~A" w h) filters)))
+
+    ;; 逆再生
+    (when rev
+      (push "reverse" filters))
+
+    (when filters
+      ;; OK: -vf "scale=1920:1080,reverse"
+      ;; NG: -vf "reverse,scale=1920:1080"
+      (let* ((filters-str (format nil "~{~a~^,~}" (reverse filters)))
+              (vf-arg (list "-vf" filters-str)))
+        (setf cmd (append cmd vf-arg))))
 
     ;; コーデック
     (when codec-info
@@ -51,3 +64,17 @@
                       :ignore-error-status t
                       :output nil :error-output nil)
     t))
+
+(defun get-video-dims (input)
+  "Return a cons (width . height) of the video using ffprobe."
+  (let* ((cmd (list "ffprobe" "-v" "error" 
+                    "-select_streams" "v:0"
+                    "-show_entries" "stream=width,height"
+                    "-of" "csv=p=0"
+                    input))
+         (output (string-trim '(#\Newline) (uiop:run-program cmd :output :string)))
+         (parts (uiop:split-string output :separator ",")))
+    (when (= (length parts) 2)
+      (let ((w (parse-integer (first parts)))
+            (h (parse-integer (second parts))))
+        (cons w h)))))

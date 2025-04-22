@@ -16,6 +16,16 @@
     ("prores" . (:encoder "prores_ks" :ext ".mov"))
     ("hap"    . (:encoder "hap"     :ext ".mov"))))
 
+(defparameter +allowed-input-extensions+
+  '(".mp4" ".mov" ".flv" ".avi" ".webm"))
+
+(defun input-extension (input)
+  (let* ((filename (file-namestring input))
+         (dot-pos (position #\. filename :from-end t)))
+    (if dot-pos
+        (subseq filename dot-pos)
+        "")))
+
 (defun resolution-from-key (key)
   "Return (width . height) if key is valid; otherwise NIL"
   (assoc key +resolution-map+ :test #'string-equal))
@@ -36,11 +46,15 @@
          (res-suffix (if res (format nil "_~a" res) ""))
          (fps (visp-options-fps opts))
          (fps-suffix (if fps (format nil "_~afps" fps) ""))
-         (loop (visp-options-loop opts))
-         (loop-suffix (if loop (format nil "_x~a" loop) ""))
+         (repeat (visp-options-repeat opts))
+         (repeat-suffix (if repeat (format nil "_x~a" repeat) ""))
+         (half (visp-options-half opts))
+         (half-suffix (if half "_Half" ""))
+         (rev (visp-options-rev opts))
+         (rev-suffix (if rev "_Reverse" ""))
          (mute (visp-options-mute opts))
          (mute-suffix (if mute "_noSound" "")))
-    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix loop-suffix ext))))
+    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix rev-suffix half-suffix repeat-suffix ext))))
 
 (defun string-replace (str from to)
   "Replace all instances of character FROM with TO in STR."
