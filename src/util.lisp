@@ -24,21 +24,23 @@
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
 
-(defun generate-output-filename (options &optional ext)
+(defun generate-output-filename (opts &optional ext)
   "Generate output filename based on visp-options and optional ext override."
-  (let* ((input (visp-options-input options))
+  (let* ((input (visp-options-input opts))
          (base (file-namestring input))
          (dot-pos (position #\. base :from-end t))
          (name (subseq base 0 dot-pos))
          ;; 拡張子は codec-info の ext 優先、なければ元ファイルの拡張子
          (ext (or ext (subseq base dot-pos)))
-         (res (visp-options-res options))
-         (fps (visp-options-fps options))
-         (mute (visp-options-mute options))
+         (res (visp-options-res opts))
          (res-suffix (if res (format nil "_~a" res) ""))
+         (fps (visp-options-fps opts))
          (fps-suffix (if fps (format nil "_~afps" fps) ""))
+         (loop (visp-options-loop opts))
+         (loop-suffix (if loop (format nil "_x~a" loop) ""))
+         (mute (visp-options-mute opts))
          (mute-suffix (if mute "_noSound" "")))
-    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix ext))))
+    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix loop-suffix ext))))
 
 (defun string-replace (str from to)
   "Replace all instances of character FROM with TO in STR."

@@ -7,7 +7,7 @@
   codec-info
   scale
   fps
-  repeat
+  loop
   mute      ;boolean
   dry-run   ;boolean
 )
@@ -34,9 +34,9 @@
                   (when (< (1+ i) (length args))
                     (setf (visp-options-fps opts) (nth (1+ i) args))
                     (incf i)))
-                 ((string= key "--repeat")
+                 ((string= key "--loop")
                   (when (< (1+ i) (length args))
-                    (setf (visp-options-repeat opts) (nth (1+ i) args))
+                    (setf (visp-options-loop opts) (nth (1+ i) args))
                     (incf i)))
                  ((string= key "--mute")
                   (setf (visp-options-mute opts) t))

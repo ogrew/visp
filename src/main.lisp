@@ -22,7 +22,9 @@
            (cmd (visp:build-cmd opts output)))               ;;コマンド構築
 
     (if (visp-options-dry-run opts)
-        (format t "~a ~{~a ~}~%" (log-tag "dry-run") cmd)
+        (progn
+          (format t "~a Planned output file: ~a~%" (log-tag "info") output)
+          (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
         (progn
           (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
           (uiop:run-program cmd :output t :error-output t)))

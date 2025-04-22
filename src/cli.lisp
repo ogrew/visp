@@ -30,15 +30,15 @@
                 (visp:log-tag "error") ext)
         (uiop:quit 1))))
 
-  (let ((repeat (visp-options-repeat opts)))
-    (when repeat
-      (let ((repeati (parse-integer repeat :junk-allowed t)))
-        (unless (and (integerp repeati) (>= repeati 1))
-          (format t "~a --repeat must be an integer >= 1, but got '~a'. ~%"
-            (log-tag "error") repeat)
+  (let ((loop (visp-options-loop opts)))
+    (when loop
+      (let ((loopi (parse-integer loop :junk-allowed t)))
+        (unless (and (integerp loopi) (>= loopi 1))
+          (format t "~a --loop must be an integer >= 1, but got '~a'. ~%"
+            (log-tag "error") loop)
           (uiop:quit 1))
-        ;; repeatはint型で再設定
-        (setf (visp-options-repeat opts) repeati))))
+        ;; loopはint型で再設定
+        (setf (visp-options-loop opts) loopi))))
 
   (let ((res (visp-options-res opts)))
     (when res

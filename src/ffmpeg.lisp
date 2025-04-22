@@ -2,7 +2,7 @@
 
 (defun build-cmd (opts output)
   "Construct the ffmpeg command list from visp-options and output filename."
-  (let* ((repeat (visp-options-repeat opts))
+  (let* ((loop (visp-options-loop opts))
          (input (visp-options-input opts))
          (scale (visp-options-scale opts))
          (fps (visp-options-fps opts))
@@ -11,9 +11,9 @@
          (cmd (list "ffmpeg" "-y")))
 
     ;; ループ再生（inputより先に無いといけないらしい）
-    (when repeat
+    (when loop
       (setf cmd (append cmd 
-        (list "-stream_loop" (format nil "~a" (1- repeat))))))
+        (list "-stream_loop" (format nil "~a" (1- loop))))))
 
     (setf cmd (append cmd (list "-i" input)))
 
