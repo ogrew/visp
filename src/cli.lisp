@@ -15,10 +15,20 @@
 
 (defun validate-options (opts)
 
-  ;; 入力ファイルは必須
-  (unless (visp-options-input opts)
-    (format t "Usage: visp --input <filename> [--res 4k] [--mute] ...~%")
-    (uiop:quit 1))
+  (let ((input (visp-options-input opts)))
+    ;; 入力ファイルは必須
+    (unless input
+      (format t "Usage: visp --input <filename> [--res 4k] [--mute] ...~%")
+      (uiop:quit 1))
+    ;; 対応する拡張子は最低限
+    (let* ((allowed-exts '(".mp4" ".mov" ".flv" ".avi" ".webm"))
+           (filename (file-namestring input))
+           (dot-pos (position #\. filename : from-end t))
+           (ext (if dot-pos (subseq filename dot-pos) "")))
+      (unless (member ext allowed-exts :test #'string-equal)
+        (format t "~a visp does not support the input file extension '~a'. ~%"
+                (visp:log-tag "error") ext)
+        (uiop:quit 1))))
 
   (let ((res (visp-options-res opts)))
     (when res
