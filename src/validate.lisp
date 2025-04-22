@@ -1,18 +1,5 @@
 (in-package :visp)
 
-(defun print-help ()
-  (format t "~%visp - minimal ffmpeg wrapper written in Common Lisp~%~%")
-  (format t "Usage:~%  ./visp.ros --input <file> [options]~%~%")
-  (format t "Required:~%  --input <file>       Input video file~%~%")
-  (format t "Optional:~%")
-  (format t "  --res <label>        Resolution (hd, fhd, 2k, 4k, etc)~%")
-  (format t "  --fps <number>       Output framerate (e.g., 30)~%")
-  (format t "  --codec <type>       Codec to use (h264, h265, prores, hap)~%")
-  (format t "  --mute               Remove audio track~%")
-  (format t "  --dry-run            Print ffmpeg command without executing it~%")
-  (format t "  --help               Show this help message~%~%")
-  (format t "Example:~%  ./visp.ros --input movie.mp4 --res fhd --codec h264 --mute~%"))
-
 (defun validate-input (opts)
   "Check if input file is provided and has a supported extension."
   (let ((input (visp-options-input opts)))
@@ -26,7 +13,10 @@
       (unless (member ext +allowed-input-extensions+ :test #'string-equal)
         (format t "~a visp does not support the input file extension '~a'.~%"
                 (log-tag "error") ext)
-        (uiop:quit 1)))))
+        (uiop:quit 1)))
+    
+    ;; 入力が問題なければ映像の情報を出す
+    (print-video-info (get-video-info input))))
 
 (defun validate-reverse (opts)
   "Validate reverse option: only allowed for .mp4/.mov, cannot be used with --loop, implies mute."

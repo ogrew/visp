@@ -6,15 +6,18 @@
    ;; main.lisp
    :main
 
-   ;; cli.lisp
+   ;; help.lisp
    :print-help
-   :validate-options
 
-   ;; ffmpeg.lisp
-   :build-cmd
-   :encoder-available-p
-   :ffmpeg-available-p
-   :get-video-dims
+  ;; validate.lisp
+  :validate-input
+  :validate-reverse
+  :validate-repeat
+  :validate-resolution
+  :validate-half
+  :validate-fps
+  :validate-codec
+  :validate-options
 
    ;; util.lisp
    :input-extension
@@ -24,8 +27,19 @@
    :string-replace
    :clean-args
 
+   ;; video.lisp
+   :get-video-dims
+   :get-video-info
+   :print-video-info
+
+   ;; ffmpeg.lisp
+   :build-cmd
+   :encoder-available-p
+   :ffmpeg-available-p
+
    ;; log.lisp
    :log-tag
+   :colorize
 
    ;; options.lisp
    :parse-args-to-options
@@ -38,7 +52,7 @@
    :visp-options-fps
    :visp-options-repeat
    :visp-options-mute
-   :visp-options-rev
    :visp-options-half
+   :visp-options-rev
    :visp-options-dry-run
    ))

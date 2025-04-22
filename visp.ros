@@ -9,10 +9,12 @@ exec ros -Q -- $0 "$@"
 
 ;; 必要なファイルを順に読み込み（依存の浅い順から）
 (load (merge-pathnames "src/log.lisp" *load-truename*))
+(load (merge-pathnames "src/help.lisp" *load-truename*))
 (load (merge-pathnames "src/options.lisp" *load-truename*))
 (load (merge-pathnames "src/util.lisp" *load-truename*))
+(load (merge-pathnames "src/video.lisp" *load-truename*))
 (load (merge-pathnames "src/ffmpeg.lisp" *load-truename*))
-(load (merge-pathnames "src/cli.lisp" *load-truename*))
+(load (merge-pathnames "src/validate.lisp" *load-truename*))
 (load (merge-pathnames "src/main.lisp" *load-truename*))
 
 ;; エントリーポイント

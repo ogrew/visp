@@ -17,7 +17,7 @@
     ("hap"    . (:encoder "hap"       :ext ".mov" :pix_fmt "yuva420p"))
     ))
 
-(defparameter +pixfmt-name-map+
+(defconstant +pixfmt-name-map+
   '(("yuv422p10le" . "ProRes 422 HQ / LT")
     ("yuv444p10le" . "ProRes 4444")
     ("yuva420p"    . "HAP Alpha")
@@ -25,7 +25,7 @@
     ;; 必要に応じて拡張
     ))
 
-(defparameter +allowed-input-extensions+
+(defconstant +allowed-input-extensions+
   '(".mp4" ".mov" ".flv" ".avi" ".webm"))
 
 (defun input-extension (input)
