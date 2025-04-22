@@ -10,11 +10,20 @@
     ("8k"     . (7680 . 4320))))
 
 (defconstant +codec-map+
-  '(("h264"  . (:encoder "libx264"  :ext ".mp4"))
-    ("h265"  . (:encoder "libx265"  :ext ".mp4"))
-    ("hevc"  . (:encoder "libx265"  :ext ".mp4")) ; alias
-    ("prores" . (:encoder "prores_ks" :ext ".mov"))
-    ("hap"    . (:encoder "hap"     :ext ".mov"))))
+  '(("h264"  . (:encoder "libx264"    :ext ".mp4"))
+    ("h265"  . (:encoder "libx265"    :ext ".mp4"))
+    ("hevc"  . (:encoder "libx265"    :ext ".mp4")) ; alias
+    ("prores" . (:encoder "prores_ks" :ext ".mov" :pix_fmt "yuv422p10le"))
+    ("hap"    . (:encoder "hap"       :ext ".mov" :pix_fmt "yuva420p"))
+    ))
+
+(defparameter +pixfmt-name-map+
+  '(("yuv422p10le" . "ProRes 422 HQ / LT")
+    ("yuv444p10le" . "ProRes 4444")
+    ("yuva420p"    . "HAP Alpha")
+    ("yuv420p"     . "H.264 Default")
+    ;; 必要に応じて拡張
+    ))
 
 (defparameter +allowed-input-extensions+
   '(".mp4" ".mov" ".flv" ".avi" ".webm"))
@@ -66,5 +75,5 @@
   "Normalize args: replace full-width spaces and downcase all."
   (mapcar (lambda (s)
             (string-downcase
-             (visp:string-replace s #\u3000 #\Space)))
+             (string-replace s #\u3000 #\Space)))
           args))

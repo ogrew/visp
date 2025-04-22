@@ -21,11 +21,16 @@
            (output (generate-output-filename opts ext)) ;;出力ファイル名作成
            (cmd (build-cmd opts output)))               ;;コマンド構築
 
-    (if (visp-options-dry-run opts)
-        (progn
-          (format t "~a Planned output file: ~a~%" (log-tag "info") output)
-          (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
-        (progn
-          (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
-          (uiop:run-program cmd :output t :error-output t)))
+      ;; 同名ファイルがあった場合ファイルはwarnを出して上書きされる
+      (when (probe-file output)
+        (format t "~a Output file '~a' already exists. It will be overwritten.~%"
+            (visp:log-tag "warn") output))
+
+      (if (visp-options-dry-run opts)
+          (progn
+            (format t "~a Planned output file: ~a~%" (log-tag "info") output)
+            (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
+          (progn
+            (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
+            (uiop:run-program cmd :output t :error-output t)))
     )))
