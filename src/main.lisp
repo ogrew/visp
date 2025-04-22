@@ -8,18 +8,18 @@
 
   ;; 引数がなければコマンドラインから取得
   (unless args (setf args (uiop:command-line-arguments)))
-  (setf args (visp:clean-args args))
+  (setf args (clean-args args))
 
   (when (member "--help" args :test #'string=)
-    (visp:print-help)
+    (print-help)
     (uiop:quit 0))
 
-  (let ((opts (visp:parse-args-to-options args)))  ;;引数解析
-    (visp:validate-options opts)                   ;;バリデーション
+  (let ((opts (parse-args-to-options args)))  ;;引数解析
+    (validate-options opts)                   ;;バリデーション
 
     (let* ((ext (getf (visp-options-codec-info opts) :ext))
-           (output (visp:generate-output-filename opts ext)) ;;出力ファイル名作成
-           (cmd (visp:build-cmd opts output)))               ;;コマンド構築
+           (output (generate-output-filename opts ext)) ;;出力ファイル名作成
+           (cmd (build-cmd opts output)))               ;;コマンド構築
 
     (if (visp-options-dry-run opts)
         (progn
