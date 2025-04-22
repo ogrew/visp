@@ -4,7 +4,6 @@
   <img src="https://github.com/user-attachments/assets/22a5fa59-f266-485c-aa3b-e83ddb992c7c" />
 </p>
 
-
 ## Overview
 
 **Visp** is a minimal command-line wrapper around [ffmpeg](https://ffmpeg.org), written in [Common Lisp](https://common-lisp.net) for both educational and practical use.  
@@ -23,6 +22,18 @@ visp --input sample.mov --codec hap
 
 # Preview the ffmpeg command without running it
 visp --input sample.mov --res 2k --codec prores --dry-run
+
+# Downscale the input video to half its original resolution
+visp --input demo.mp4 --half
+
+# Reverse the video (mute implied)
+visp --input intro.mov --reverse
+
+# Repeat input video 4 times (original + 3 loops)
+visp --input loopclip.mp4 --loop 3
+
+# Apply multiple options together
+visp --input raw.mp4 --res hd --codec h265 --fps 24 --mute
 ```
 
 Output filenames are automatically determined based on options.
@@ -31,19 +42,24 @@ Examples:
 
 - `sample_fhd.mp4`
 - `sample_720p_30fps_noSound.mov`
-- `sample_4k_noSound.mp4`
+- `intro_noSound_Reverse.mp4`
+- `loopclip_x4.mp4`
+- `demo_Half.mp4`
 
 ## Options
 
-| Option      | Argument                        | Description                                                |
-| ----------- | ------------------------------- | ---------------------------------------------------------- |
-| `--input`   | `<file>`                        | **Required.** Path to the input video file.                |
-| `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`   | Target resolution (e.g. `fhd` → 1920×1080).                |
-| `--codec`   | `h264`, `h265`, `prores`, `hap` | Video codec (and container) to use.                        |
-| `--fps`     | `<number>`                      | Set output frame rate (e.g. 24, 30, 60).                   |
-| `--mute`    | _(flag)_                        | Strip out the audio track.                                 |
-| `--dry-run` | _(flag)_                        | Print the generated `ffmpeg` command without executing it. |
-| `--help`    | _(flag)_                        | Show usage information and exit.                           |
+| Option      | Argument                                      | Description                                                      |
+| ----------- | --------------------------------------------- | ---------------------------------------------------------------- |
+| `--input`   | `<file>`                                      | **Required.** Path to the input video file.                      |
+| `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`                 | Target resolution (e.g. `fhd` → 1920×1080).                      |
+| `--codec`   | `h264`, `h265`, `prores`, `hap`, `vp8`, `vp9` | Video codec (also determines container and pixel format).        |
+| `--fps`     | `<number>`                                    | Set output framerate (e.g. 24, 30, 60).                          |
+| `--mute`    | _(flag)_                                      | Strip out the audio track.                                       |
+| `--loop`    | `<number>`                                    | Loop the input video N times (e.g. `--loop 4` → repeat 3 times). |
+| `--reverse` | _(flag)_                                      | Reverse the input video (audio is automatically muted).          |
+| `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
+| `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
+| `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
 
 ## Build & Setup
 
