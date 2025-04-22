@@ -23,12 +23,22 @@
     ;; 対応する拡張子は最低限
     (let* ((allowed-exts '(".mp4" ".mov" ".flv" ".avi" ".webm"))
            (filename (file-namestring input))
-           (dot-pos (position #\. filename : from-end t))
+           (dot-pos (position #\. filename :from-end t))
            (ext (if dot-pos (subseq filename dot-pos) "")))
       (unless (member ext allowed-exts :test #'string-equal)
-        (format t "~a visp does not support the input file extension '~a'. ~%"
+        (format t "~a visp does not support the input file extension '~a'.~%"
                 (visp:log-tag "error") ext)
         (uiop:quit 1))))
+
+  (let ((repeat (visp-options-repeat opts)))
+    (when repeat
+      (let ((repeati (parse-integer repeat :junk-allowed t)))
+        (unless (and (integerp repeati) (>= repeati 1))
+          (format t "~a --repeat must be an integer >= 1, but got '~a'. ~%"
+            (log-tag "error") repeat)
+          (uiop:quit 1))
+        ;; repeatはint型で再設定
+        (setf (visp-options-repeat opts) repeati))))
 
   (let ((res (visp-options-res opts)))
     (when res

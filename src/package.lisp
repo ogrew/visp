@@ -34,6 +34,7 @@
    :visp-options-codec
    :visp-options-codec-info
    :visp-options-fps
+   :visp-options-repeat
    :visp-options-mute
    :visp-options-dry-run
    ))

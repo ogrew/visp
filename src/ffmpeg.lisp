@@ -2,30 +2,41 @@
 
 (defun build-cmd (opts output)
   "Construct the ffmpeg command list from visp-options and output filename."
-  (let ((cmd (list "ffmpeg" "-y" "-i" (visp-options-input opts))))
+  (let* ((repeat (visp-options-repeat opts))
+         (input (visp-options-input opts))
+         (scale (visp-options-scale opts))
+         (fps (visp-options-fps opts))
+         (mute (visp-options-mute opts))
+         (codec-info (visp-options-codec-info opts))
+         (cmd (list "ffmpeg" "-y")))
+
+    ;; ループ再生（inputより先に無いといけないらしい）
+    (when repeat
+      (setf cmd (append cmd 
+        (list "-stream_loop" (format nil "~a" (1- repeat))))))
+
+    (setf cmd (append cmd (list "-i" input)))
 
     ;; 解像度（縦：横）
-    (when (visp-options-scale opts)
-      (destructuring-bind (w . h) (visp-options-scale opts)
+    (when scale
+      (destructuring-bind (w . h) scale
         (setf cmd (append cmd (list "-vf" (format nil "scale=~A:~A" w h))))))
 
     ;; コーデック
-    (let ((codec-info (visp-options-codec-info opts)))
-      (when codec-info
-        (let ((encoder (getf codec-info :encoder)))
-          (setf cmd (append cmd (list "-c:v" encoder))))))
+    (when codec-info
+      (let ((encoder (getf codec-info :encoder)))
+        (setf cmd (append cmd (list "-c:v" encoder)))))
 
     ;; ミュート
-    (when (visp-options-mute opts)
+    (when mute
       (setf cmd (append cmd (list "-an"))))
 
     ;; フレームレート
-    (when (visp-options-fps opts)
-      (setf cmd (append cmd (list "-r" (visp-options-fps opts)))))
+    (when fps
+      (setf cmd (append cmd (list "-r" fps))))
 
     ;; 出力ファイル名
-    (setf cmd (append cmd (list output)))
-    cmd))
+    (setf cmd (append cmd (list output))) cmd))
 
 (defun encoder-available-p (name)
   "Return T if the given encoder name appears in `ffmpeg -encoders` output."
