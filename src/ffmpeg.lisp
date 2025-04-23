@@ -49,7 +49,7 @@
 
     ;; フレームレート
     (when fps
-      (setf cmd (append cmd (list "-r" fps))))
+      (setf cmd (append cmd (list "-r" (format nil "~a" fps))))
 
     ;; 出力ファイル名
     (setf cmd (append cmd (list output))) cmd))
