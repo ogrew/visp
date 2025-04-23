@@ -8,15 +8,21 @@
       (format t "Usage: visp --input <filename> [--res 4k] [--mute] ...~%")
       (uiop:quit 1))
 
+    ;; ファイルの存在確認
+    (unless (probe-file input)
+      (format t "~a Input file '~a' does not exist.~%" (log-tag "error") input)
+      (uiop:quit 1))
+
+    ;; 拡張子チェック
     (let ((ext (input-extension input)))
-      ;; 対応する拡張子は最低限
       (unless (member ext +allowed-input-extensions+ :test #'string-equal)
         (format t "~a visp does not support the input file extension '~a'.~%"
                 (log-tag "error") ext)
         (uiop:quit 1)))
     
-    ;; 入力が問題なければ映像の情報を出す
+    ;; 動画情報の表示
     (print-video-info (get-video-info input))))
+
 
 (defun validate-reverse (opts)
   "Validate reverse option: only allowed for .mp4/.mov, cannot be used with --loop, implies mute."
@@ -133,6 +139,14 @@
     ;; 成功したら codec-info をオプションに保存
     (setf (visp-options-codec-info opts) codec-info)))
 
+(defun validate-mono (opts)
+  "Ensure --mono is not used with unsupported codecs."
+  (when (visp-options-mono opts)
+    (let ((codec (visp-options-codec opts)))
+      (when (member codec '("prores" "hap") :test #'string=)
+        (error "The --mono option is not supported with codec ~A." codec)))))
+
+
 (defun validate-options (opts)
   (validate-input opts)
   (validate-reverse opts)
@@ -140,4 +154,5 @@
   (validate-resolution opts)
   (validate-half opts)
   (validate-fps opts)
-  (validate-codec opts))
+  (validate-codec opts)
+  (validate-mono opts))

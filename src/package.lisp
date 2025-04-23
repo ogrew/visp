@@ -17,6 +17,7 @@
   :validate-half
   :validate-fps
   :validate-codec
+  :validate-mono
   :validate-options
 
    ;; util.lisp
@@ -53,6 +54,7 @@
    :visp-options-repeat
    :visp-options-mute
    :visp-options-half
+   :visp-options-mono
    :visp-options-rev
    :visp-options-dry-run
    ))

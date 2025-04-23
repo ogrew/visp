@@ -11,6 +11,7 @@
   half      ;boolean
   rev       ;boolean
   mute      ;boolean
+  mono      ;boolean
   dry-run   ;boolean
 )
 
@@ -46,6 +47,8 @@
                   (setf (visp-options-half opts) t))
                  ((string= key "--reverse")
                   (setf (visp-options-rev opts) t))
+                 ((string= key "--mono")
+                  (setf (visp-options-mono opts) t))
                  ((string= key "--dry-run")
                   (setf (visp-options-dry-run opts) t))
                  (t

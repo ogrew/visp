@@ -59,11 +59,22 @@
          (repeat-suffix (if repeat (format nil "_x~a" repeat) ""))
          (half (visp-options-half opts))
          (half-suffix (if half "_Half" ""))
+         (mono (visp-options-mono opts))
+         (mono-suffix (if mono "_Gray" ""))
          (rev (visp-options-rev opts))
          (rev-suffix (if rev "_Reverse" ""))
          (mute (visp-options-mute opts))
          (mute-suffix (if mute "_noSound" "")))
-    (apply #'concatenate 'string (list name res-suffix fps-suffix mute-suffix rev-suffix half-suffix repeat-suffix ext))))
+    (apply #'concatenate 'string 
+      (list name 
+            res-suffix 
+            fps-suffix 
+            mute-suffix 
+            rev-suffix 
+            half-suffix 
+            mono-suffix 
+            repeat-suffix 
+            ext))))
 
 (defun string-replace (str from to)
   "Replace all instances of character FROM with TO in STR."

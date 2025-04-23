@@ -57,6 +57,7 @@ Examples:
 | `--mute`    | _(flag)_                                      | Strip out the audio track.                                       |
 | `--loop`    | `<number>`                                    | Loop the input video N times (e.g. `--loop 4` → repeat 3 times). |
 | `--reverse` | _(flag)_                                      | Reverse the input video (audio is automatically muted).          |
+| `--mono`    | _(flag)_                                      | Convert video to grayscale (supported only with `h264`/`h265`).  |
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |

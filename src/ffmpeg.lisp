@@ -8,6 +8,7 @@
          (fps (visp-options-fps opts))
          (mute (visp-options-mute opts))
          (rev (visp-options-rev opts))
+         (mono (visp-options-mono opts))
          (codec-info (visp-options-codec-info opts))
          (filters '())
          (cmd (list "ffmpeg" "-y")))
@@ -27,6 +28,9 @@
     ;; 逆再生
     (when rev
       (push "reverse" filters))
+    
+    (when mono
+      (push "format=gray" filters))
 
     (when filters
       ;; OK: -vf "scale=1920:1080,reverse"
@@ -49,7 +53,7 @@
 
     ;; フレームレート
     (when fps
-      (setf cmd (append cmd (list "-r" (format nil "~a" fps))))
+      (setf cmd (append cmd (list "-r" (format nil "~a" fps)))))
 
     ;; 出力ファイル名
     (setf cmd (append cmd (list output))) cmd))
