@@ -22,42 +22,52 @@
                     "-show_entries" "format=duration"
                     "-of" "default=noprint_wrappers=1:nokey=0"
                     input))
-         (raw (uiop:run-program cmd :output :string)))
+         (raw (uiop:run-program cmd :output :string))
+         (lines (uiop:split-string raw :separator '(#\Newline)))
+         (info (loop for line in lines
+                     for parts = (uiop:split-string line :separator "=")
+                     when (= (length parts) 2)
+                     collect (cons (first parts) (second parts))))
+         (codec (assoc "codec_name" info :test #'string=))
+         (width (assoc "width" info :test #'string=))
+         (height (assoc "height" info :test #'string=))
+         (rate (assoc "r_frame_rate" info :test #'string=))
+         (duration (assoc "duration" info :test #'string=)))
 
-    (let* ((lines (uiop:split-string raw :separator '(#\Newline)))
-           (info (loop for line in lines
-                       for parts = (uiop:split-string line :separator "=")
-                       when (= (length parts) 2)
-                       collect (cons (first parts) (second parts)))))
-
-      ;; 別途、音声ストリームの情報も取得
-      (let* ((audio-cmd (list "ffprobe" "-v" "error"
-                              "-select_streams" "a"
-                              "-show_entries" "stream=codec_name"
-                              "-of" "default=noprint_wrappers=1:nokey=1"
-                              input))
-             (audio-codec (string-trim '(#\Newline)
-                                       (uiop:run-program audio-cmd :output :string))))
-        (acons "audio_codec" audio-codec info)))))
+    ;; 音声情報取得
+    (let* ((audio-cmd (list "ffprobe" "-v" "error"
+                            "-select_streams" "a"
+                            "-show_entries" "stream=codec_name"
+                            "-of" "default=noprint_wrappers=1:nokey=1"
+                            input))
+           (audio-codec (string-trim '(#\Newline)
+                                     (uiop:run-program audio-cmd :output :string)))
+           (has-audio (not (string= audio-codec "")))) ; 空なら音声なし
+      
+      `(:width ,(when width (parse-integer (cdr width)))
+        :height ,(when height (parse-integer (cdr height)))
+        :fps ,(when rate (parse-frame-rate (cdr rate)))
+        :duration ,(when duration (parse-float (cdr duration)))
+        :has-audio ,has-audio
+        :audio-codec ,(if has-audio audio-codec nil)
+        :video-codec ,(when codec (cdr codec))))))
 
 (defun print-video-info (info)
-  (let* ((codec    (cdr (assoc "codec_name" info :test #'string=)))
-         (w        (cdr (assoc "width" info :test #'string=)))
-         (h        (cdr (assoc "height" info :test #'string=)))
-         (fps      (cdr (assoc "r_frame_rate" info :test #'string=)))
-         (duration (cdr (assoc "duration" info :test #'string=)))
-         (audio    (cdr (assoc "audio_codec" info :test #'string=)))
-         (duration-str (if duration (format nil "~,2f sec" (read-from-string duration)) "N/A")))
+  (let* ((vcodec   (getf info :video-codec))
+         (w        (getf info :width))
+         (h        (getf info :height))
+         (fps      (getf info :fps))
+         (duration (getf info :duration))
+         (acodec   (getf info :audio-codec))
+         (duration-str (if duration (format nil "~,2f sec" duration) "N/A")))
 
     (format t "~%~a Input File Info~%" (visp:log-tag "info"))
-    (format t "  Codec     : ~a~%" (or codec "N/A"))
-    (format t "  Resolution: ~a~%" (if (and w h) (format nil "~ax~a" w h) "N/A"))
-    (format t "  FPS       : ~a~%" (or fps "N/A"))
-    (format t "  Duration  : ~a~%" duration-str)
-    (format t "  Audio     : ~a~%~%" (or audio "none"))))
+    (format t "  Video Codec: ~a~%" (or vcodec "N/A"))
+    (format t "  Resolution : ~a~%" (if (and w h) (format nil "~ax~a" w h) "N/A"))
+    (format t "  FPS        : ~a~%" (or fps "N/A"))
+    (format t "  Duration   : ~a~%" duration-str)
+    (format t "  Audio      : ~a~%~%" (or acodec "none"))))
 
 
-
-
-
-
+(defun all-have-audio-p (video-infos)
+  (every (lambda (info) (getf info :has-audio)) video-infos))

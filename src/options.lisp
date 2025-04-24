@@ -13,6 +13,7 @@
   mute      ;boolean
   mono      ;boolean
   dry-run   ;boolean
+  merge-files
 )
 
 (defun parse-args-to-options (args)
@@ -51,7 +52,15 @@
                   (setf (visp-options-mono opts) t))
                  ((string= key "--dry-run")
                   (setf (visp-options-dry-run opts) t))
-                 (t
+                 ((string= key "--merge")
+                  (let ((files '()))
+                    (loop for j from (1+ i) below (length args)
+                          for val = (nth j args)
+                          until (string-prefix-p "--" val)
+                          do (push val files)
+                              (incf i))
+                    (setf (visp-options-merge-files opts) (nreverse files))))
+                  (t
                   (format t "~a visp does not support the option '~a'.~%" (log-tag "error") key)
                   (uiop:quit 1)))))
     opts))

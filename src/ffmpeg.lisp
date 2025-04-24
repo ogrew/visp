@@ -1,5 +1,82 @@
 (in-package :visp)
 
+(defun run-cmd (cmd output dry-run)
+  (when (probe-file output)
+    (format t "~a Output file '~a' already exists. It will be overwritten.~%"
+            (log-tag "warn") output))
+
+  (if dry-run
+      (progn
+        (format t "~a Planned output file: ~a~%" (log-tag "info") output)
+        (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
+      (progn
+        (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
+        (uiop:run-program cmd :output t :error-output t))))
+
+(defun build-concat-filter (files video-info audio-enabled-p)
+  "Generate filter_complex string for ffmpeg concat."
+  (let* ((fps (getf video-info :fps))
+         (width (getf video-info :width))
+         (height (getf video-info :height))
+         (v-labels '())
+         (a-labels '())
+         (v-lines '())
+         (a-lines '()))
+    (loop for f in files
+          for idx from 0
+          do
+            (let ((v-out (format nil "v~a" idx))
+                  (a-out (format nil "a~a" idx)))
+              (push v-out v-labels)
+              (push (format nil "[~a:v:0]~a[~a];"
+                            idx
+                            (if (zerop idx)
+                                "setpts=PTS-STARTPTS"
+                                (format nil "fps=~a,scale=~a:~a,setpts=PTS-STARTPTS"
+                                        (format nil "~,2f" fps) width height))
+                            v-out)
+                    v-lines)
+              (when audio-enabled-p
+                (push a-out a-labels)
+                (push (format nil "[~a:a:0]asetpts=PTS-STARTPTS[~a];" idx a-out)
+                      a-lines))))
+    (let ((concat-part (format nil "~{[~a]~}~{[~a]~}concat=n=~a:v=1:a=~a[outv]~a"
+                                (reverse v-labels)
+                                (if audio-enabled-p (reverse a-labels) '())
+                                (length files)
+                                (if audio-enabled-p 1 0)
+                                (if audio-enabled-p "[outa]" ""))))
+      (concatenate 'string
+                   (apply #'concatenate 'string (reverse v-lines))
+                   (apply #'concatenate 'string (reverse a-lines))
+                   concat-part))))
+
+(defun build-merge-cmd (opts output)
+  "Build ffmpeg command for --merge mode."
+  (let* ((files (visp-options-merge-files opts))
+         (input-args (mapcan (lambda (f) (list "-i" f)) files))
+         (video-infos (mapcar #'get-video-info files))
+         (first-video-info (car video-infos))
+         (fps (getf first-video-info :fps))
+         (width (getf first-video-info :width))
+         (height (getf first-video-info :height)))
+    
+    ;; defensive check
+    (unless (and fps width height)
+      (format t "~a Failed to retrieve fps/width/height from ~a~%" (log-tag "error") (car files))
+      (format t "~a Check if the file is a valid video with proper metadata.~%" (log-tag "error"))
+      (uiop:quit 1))
+
+    (let* ((audio-enabled-p (all-have-audio-p video-infos))
+           (filter (build-concat-filter files first-video-info audio-enabled-p))
+           (cmd (append '("ffmpeg" "-y")
+                        input-args
+                        (list "-filter_complex" filter
+                              "-map" "[outv]")
+                        (if audio-enabled-p '("-map" "[outa]") nil)
+                        (list output))))
+      cmd)))
+
 (defun build-cmd (opts output)
   "Construct the ffmpeg command list from visp-options and output filename."
   (let* ((repeat (visp-options-repeat opts))

@@ -1,38 +1,28 @@
 (in-package :visp)
 
-(defconstant +resolution-map+
-  '(("hd"     . (1280 . 720))
-    ("720p"   . (1280 . 720))
-    ("fhd"    . (1920 . 1080))
-    ("1080p"  . (1920 . 1080))
-    ("2k"     . (2560 . 1440))
-    ("4k"     . (3840 . 2160))
-    ("8k"     . (7680 . 4320))))
+(defun parse-float (str)
+  "Parse a string as a float. Returns NIL if not parsable."
+  (handler-case
+      (let ((val (read-from-string str)))
+        (if (floatp val)
+            val
+            (coerce val 'float))) ; int → float に変換
+    (error () nil)))
 
-(defconstant +codec-map+
-  '(("h264"  . (:encoder "libx264"    :ext ".mp4"))
-    ("h265"  . (:encoder "libx265"    :ext ".mp4"))
-    ("hevc"  . (:encoder "libx265"    :ext ".mp4")) ; alias
-    ("prores" . (:encoder "prores_ks" :ext ".mov" :pix_fmt "yuv422p10le"))
-    ("hap"    . (:encoder "hap"       :ext ".mov" :pix_fmt "yuva420p"))
-    ))
+(defun parse-frame-rate (rate)
+  (handler-case
+      (let ((parts (uiop:split-string rate :separator "/")))
+        (if (= (length parts) 2)
+            (/ (parse-float (first parts)) (parse-float (second parts)))
+            (parse-float rate)))
+    (error () nil)))
 
-(defconstant +pixfmt-name-map+
-  '(("yuv422p10le" . "ProRes 422 HQ / LT")
-    ("yuv444p10le" . "ProRes 4444")
-    ("yuva420p"    . "HAP Alpha")
-    ("yuv420p"     . "H.264 Default")
-    ;; 必要に応じて拡張
-    ))
-
-(defconstant +allowed-input-extensions+
-  '(".mp4" ".mov" ".flv" ".avi" ".webm"))
-
-(defun input-extension (input)
-  (let* ((filename (file-namestring input))
-         (dot-pos (position #\. filename :from-end t)))
+(defun input-extension (filename)
+  "Return the extension of the input file in lowercase, with leading dot (e.g., .mp4)"
+  (let* ((base (file-namestring filename))
+         (dot-pos (position #\. base :from-end t)))
     (if dot-pos
-        (subseq filename dot-pos)
+        (concatenate 'string "." (string-downcase (subseq base (1+ dot-pos))))
         "")))
 
 (defun resolution-from-key (key)
@@ -42,6 +32,15 @@
 (defun codec-info-from-key (key)
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
+
+(defun generate-merge-output-filename (opts)
+  "Generate output filename for --merge mode, based on the first file in the list."
+  (let* ((files (visp-options-merge-files opts))
+         (head (car files))
+         (base (file-namestring head))
+         (dot-pos (position #\. base :from-end t))
+         (name (subseq base 0 dot-pos)))
+      (concatenate 'string name "_merged.mp4")))
 
 (defun generate-output-filename (opts &optional ext)
   "Generate output filename based on visp-options and optional ext override."
@@ -88,3 +87,7 @@
             (string-downcase
              (string-replace s #\u3000 #\Space)))
           args))
+
+(defun string-prefix-p (prefix str)
+  (and (<= (length prefix) (length str))
+       (string= prefix (subseq str 0 (length prefix)))))

@@ -15,22 +15,17 @@
     (uiop:quit 0))
 
   (let ((opts (parse-args-to-options args)))  ;;引数解析
-    (validate-options opts)                   ;;バリデーション
+        (dispatch-validation opts)            ;;バリデーション
 
-    (let* ((ext (getf (visp-options-codec-info opts) :ext))
-           (output (generate-output-filename opts ext)) ;;出力ファイル名作成
-           (cmd (build-cmd opts output)))               ;;コマンド構築
+    (if (visp-options-merge-files opts)
 
-      ;; 同名ファイルがあった場合ファイルはwarnを出して上書きされる
-      (when (probe-file output)
-        (format t "~a Output file '~a' already exists. It will be overwritten.~%"
-            (visp:log-tag "warn") output))
-
-      (if (visp-options-dry-run opts)
-          (progn
-            (format t "~a Planned output file: ~a~%" (log-tag "info") output)
-            (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
-          (progn
-            (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
-            (uiop:run-program cmd :output t :error-output t)))
-    )))
+      ;; 動画結合ルート
+      (let* ((output (generate-merge-output-filename opts))
+            (cmd (build-merge-cmd opts output)))
+          (run-cmd cmd output (visp-options-dry-run opts)))
+      
+      ;;通常ルート
+      (let* ((ext (getf (visp-options-codec-info opts) :ext))
+            (output (generate-output-filename opts ext))
+            (cmd (build-cmd opts output)))
+          (run-cmd cmd output (visp-options-dry-run opts))))))

@@ -3,6 +3,12 @@
   (:documentation "Minimal ffmpeg wrapper CLI tool written in Common Lisp.")
   (:export
 
+   ;; const.lisp
+   :+resolution-map+
+   :+codec-map+
+   :+pixfmt-name-map+
+   :+allowed-input-extensions+
+
    ;; main.lisp
    :main
 
@@ -10,6 +16,7 @@
    :print-help
 
   ;; validate.lisp
+  :validate-merge-files
   :validate-input
   :validate-reverse
   :validate-repeat
@@ -19,21 +26,29 @@
   :validate-codec
   :validate-mono
   :validate-options
+  :dispatch-validation
 
    ;; util.lisp
    :input-extension
+   :parse-float
+   :parse-frame-rate
    :resolution-from-key
    :codec-info-from-key
    :generate-output-filename
    :string-replace
    :clean-args
+   :string-prefix-p
 
    ;; video.lisp
    :get-video-dims
    :get-video-info
    :print-video-info
+   :all-have-audio-p
 
    ;; ffmpeg.lisp
+   :run-cmd
+   :build-concat-filter
+   :build-merge-cmd
    :build-cmd
    :encoder-available-p
    :ffmpeg-available-p
@@ -57,4 +72,5 @@
    :visp-options-mono
    :visp-options-rev
    :visp-options-dry-run
+   :visp-options-merge-files
    ))

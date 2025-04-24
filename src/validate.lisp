@@ -1,5 +1,78 @@
 (in-package :visp)
 
+(defun validate-merge-files (opts)
+  "Validate options specific to --merge mode."
+  (let* ((files (visp-options-merge-files opts)))
+
+    ;; --dry-run だけは併用を許可する。他はすべて禁止。
+    (when (or (visp-options-input opts)
+              (visp-options-res opts)
+              (visp-options-codec opts)
+              (visp-options-fps opts)
+              (visp-options-repeat opts)
+              (visp-options-half opts)
+              (visp-options-rev opts)
+              (visp-options-mute opts)
+              (visp-options-mono opts))
+      (format t "~a --merge cannot be combined with other options.~%" (log-tag "error"))
+      (uiop:quit 1))
+
+    ;; ファイル数チェック
+    (unless (and files (>= (length files) 2))
+      (format t "~a At least two .mp4 files must be specified for --merge.~%" (log-tag "error"))
+      (uiop:quit 1))
+
+    ;; 拡張子チェック
+    (dolist (file files)
+      (unless (string-equal (input-extension file) ".mp4")
+        (format t "~a Only .mp4 files are supported for --merge (got: ~a).~%" (log-tag "error") file)
+        (uiop:quit 1)))
+
+    ;; ファイル存在確認
+    (dolist (file files)
+      (unless (probe-file file)
+        (format t "~a Input file '~a' does not exist.~%" (log-tag "error") file)
+        (uiop:quit 1)))
+
+    ;; 動画情報取得
+    (let* ((infos (mapcar #'get-video-info files)))
+
+      ;; メタ情報に不備があるファイルを検出（fps / width / height）
+      (dolist (pair (mapcar #'cons files infos))
+        (let ((file (car pair))
+              (info (cdr pair)))
+          (unless (and (getf info :fps) (getf info :width) (getf info :height))
+            (format t "~a Failed to extract fps/width/height from file: ~a~%" (log-tag "error") file)
+            (format t "~a This file may be corrupted or not a valid video.~%" (log-tag "error"))
+            (uiop:quit 1))))
+
+      ;; 音声混在チェック
+      (let ((has-audio-list (mapcar (lambda (info) (getf info :has-audio)) infos)))
+        (unless (or (every #'identity has-audio-list)
+                    (every #'not has-audio-list))
+          (format t "~a --merge does not support mixing audio and non-audio files.~%" (log-tag "error"))
+          (uiop:quit 1)))
+
+      ;; fps混在チェック（warn）
+      (let ((fps-list (remove-duplicates (mapcar (lambda (info) (getf info :fps)) infos)
+                                         :test #'=)))
+        (when (> (length fps-list) 1)
+          (format t "~a Detected different fps values across files. All will be converted to ~afps.~%"
+                  (log-tag "warn") (getf (car infos) :fps))))
+
+      ;; 解像度混在チェック（warn）
+      (let ((size-list (remove-duplicates
+                        (mapcar (lambda (info)
+                                  (cons (getf info :width) (getf info :height)))
+                                infos)
+                        :test #'equal)))
+        (when (> (length size-list) 1)
+          (format t "~a Detected different resolutions across files. All will be scaled to ~ax~a.~%"
+                  (log-tag "warn")
+                  (getf (car infos) :width)
+                  (getf (car infos) :height)))))))
+
+
 (defun validate-input (opts)
   "Check if input file is provided and has a supported extension."
   (let ((input (visp-options-input opts)))
@@ -22,7 +95,6 @@
     
     ;; 動画情報の表示
     (print-video-info (get-video-info input))))
-
 
 (defun validate-reverse (opts)
   "Validate reverse option: only allowed for .mp4/.mov, cannot be used with --loop, implies mute."
@@ -156,3 +228,8 @@
   (validate-fps opts)
   (validate-codec opts)
   (validate-mono opts))
+
+(defun dispatch-validation (opts)
+  (if (visp-options-merge-files opts)
+      (validate-merge-files opts)
+      (validate-options opts)))

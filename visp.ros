@@ -8,6 +8,7 @@ exec ros -Q -- $0 "$@"
 (load (merge-pathnames "src/package.lisp" *load-truename*))
 
 ;; 必要なファイルを順に読み込み（依存の浅い順から）
+(load (merge-pathnames "src/const.lisp" *load-truename*))
 (load (merge-pathnames "src/log.lisp" *load-truename*))
 (load (merge-pathnames "src/help.lisp" *load-truename*))
 (load (merge-pathnames "src/options.lisp" *load-truename*))
