@@ -34,6 +34,9 @@ visp --input loopclip.mp4 --loop 3
 
 # Apply multiple options together
 visp --input raw.mp4 --res hd --codec h265 --fps 24 --mute
+
+# Merge multiple mp4 videos into one (new!)
+visp --merge intro.mp4 scene.mp4 outro.mp4
 ```
 
 Output filenames are automatically determined based on options.
@@ -61,6 +64,38 @@ Examples:
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
+
+## Merge Mode
+
+You can also use `visp` to merge multiple `.mp4` videos into one.
+
+```bash
+visp --merge part1.mp4 part2.mp4 part3.mp4
+```
+
+Requirements:
+
+- All input files must be `.mp4`.
+- At least two files are required.
+- Files must either all have audio, or all be silent (no mix).
+- All videos will be normalized to the **resolution and framerate** of the first file.
+- The output file will be named after the first file with `_merged.mp4` appended.
+- `--dry-run` may be combined to preview the command.
+
+Example:
+
+```bash
+visp --merge clipA.mp4 clipB.mp4 --dry-run
+```
+
+Sample output:
+
+```text
+[WARN] Detected different resolutions across files. All will be scaled to 1920x1080.
+[WARN] Detected different fps values. All will be converted to 60.0fps.
+[INFO] Planned output file: clipA_merged.mp4
+[DRY-RUN] Command: ffmpeg ...
+```
 
 ## TODO
 
