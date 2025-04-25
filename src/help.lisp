@@ -7,6 +7,7 @@
   (format t "Usage:~%")
   (format t "  visp --input <file> [options]    ;; Normal mode~%")
   (format t "  visp --merge <file1> <file2> ... ;; Merge multiple mp4 files into one~%~%")
+  (format t "  visp --gif <file>                ;; Convert a single video to GIF~%~%")
 
   ;; Normal mode options
   (format t "Normal mode options:~%")
@@ -34,7 +35,19 @@
   (format t "    - Other options cannot be combined with --merge~%")
   (format t "    - However, --dry-run can be combined to preview the ffmpeg command~%~%")
 
+  ;; GIF mode explanation
+  (format t "GIF mode (exclusive):~%")
+  (format t "  --gif <file>~%")
+  (format t "    Convert video to GIF animation.~%")
+  (format t "    - Only one input file allowed~%")
+  (format t "    - Resolution is fixed to 640px wide, height auto-scaled~%")
+  (format t "    - Output framerate is half of the source video's framerate~%")
+  (format t "    - Output file will be named like input.gif (e.g., movie.mp4 → movie.gif)~%")
+  (format t "    - Other options cannot be combined with --gif (except --dry-run)~%")
+  (format t "    - High-quality palette and Bayer dithering applied for compression~%~%")
+
   ;; Example
   (format t "Examples:~%")
   (format t "  visp --input movie.mp4 --res fhd --codec h264 --mono --mute~%")
-  (format t "  visp --merge clip1.mp4 clip2.mp4 clip3.mp4~%"))
+  (format t "  visp --merge clip1.mp4 clip2.mp4 clip3.mp4~%")
+  (format t "  visp --gif teaser.mp4~%"))

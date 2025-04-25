@@ -6,10 +6,10 @@
 
 ## Overview
 
-**Visp** is a minimal command-line wrapper around [ffmpeg](https://ffmpeg.org), written in [Common Lisp](https://common-lisp.net) for both educational and practical use.  
+`visp` is a minimal command-line wrapper around [ffmpeg](https://ffmpeg.org), written in [Common Lisp](https://common-lisp.net) for both educational and practical use.  
 It simplifies repetitive `ffmpeg` operations like resolution conversion, audio stripping, codec switching, and more — all while auto-generating output filenames.
 
-Originally created as a Lisp learning project, **Visp** has grown into a practical tool that automates and streamlines common video encoding tasks.
+Originally created as a Lisp learning project, `visp` has grown into a practical tool that automates and streamlines common video encoding tasks.
 
 ## Usage Examples
 
@@ -35,8 +35,11 @@ visp --input loopclip.mp4 --loop 3
 # Apply multiple options together
 visp --input raw.mp4 --res hd --codec h265 --fps 24 --mute
 
-# Merge multiple mp4 videos into one (new!)
+# Merge multiple mp4 videos into one
 visp --merge intro.mp4 scene.mp4 outro.mp4
+
+# Convert a video to an animated GIF (fixed size, half fps)
+visp --gif teaser.mp4
 ```
 
 Output filenames are automatically determined based on options.
@@ -48,6 +51,7 @@ Examples:
 - `intro_noSound_Reverse.mp4`
 - `loopclip_x4.mp4`
 - `demo_Half.mp4`
+- `teaser.gif`
 
 ## Options
 
@@ -97,9 +101,40 @@ Sample output:
 [DRY-RUN] Command: ffmpeg ...
 ```
 
+## GIF Mode
+
+You can convert a single video file into an animated GIF using `visp`.
+
+```bash
+visp --gif input.mp4
+```
+
+Details:
+
+- Only one input file is allowed.
+- The output resolution is fixed to **640 pixels wide**, height is auto-scaled to preserve aspect ratio.
+- The output framerate is set to **half of the original video’s fps**.
+- The output file will be named after the input with `.gif` as the extension.
+- Other options (e.g. `--mute`, `--res`, etc.) **cannot be combined** with `--gif`.
+- `--dry-run` may be used to preview the ffmpeg command.
+- A high-quality palette is generated with `palettegen`, and dithering is applied using `dither=bayer:bayer_scale=3:diff_mode=rectangle` for optimal compression and visual fidelity.
+
+Example:
+
+```bash
+visp --gif teaser.mp4 --dry-run
+```
+
+Sample output:
+
+```text
+[INFO] Planned output file: teaser.gif
+[DRY-RUN] Command: ffmpeg -i teaser.mp4 -filter_complex [0:v] fps=15.00,scale=640:-1,split [a][b];[a] palettegen=stats_mode=single [p];[b][p] paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle:new=1 -y teaser.gif
+```
+
 ## TODO
 
-Planned features and improvements for future versions of **Visp**:
+Planned features and improvements for future versions of `visp`:
 
 - ✅ Add unit tests to improve code reliability and future development.
 - 🌀 Batch mode: Process all video files in a folder with the same options.
@@ -117,7 +152,7 @@ cd visp
 ros build visp.ros
 ```
 
-To run **Visp** from anywhere, move the binary into a directory included in your $PATH, such as /usr/local/bin:
+To run `visp` from anywhere, move the binary into a directory included in your $PATH, such as /usr/local/bin:
 
 ```bash
 sudo mv visp /usr/local/bin/
@@ -144,7 +179,7 @@ ffmpeg -version
 # ffmpeg version 7.1.1 ...
 ```
 
-If `ffmpeg` is not detected, **Visp** will show an error and terminate early.
+If `ffmpeg` is not detected, `visp` will show an error and terminate early.
 
 Developer environment used:
 
