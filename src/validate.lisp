@@ -1,5 +1,36 @@
 (in-package :visp)
 
+(defun validate-gif-mode (opts)
+  "Validate options for GIF mode: --gif requires only input and allows --dry-run."
+  (let ((input (visp-options-input opts)))
+    ;; 入力ファイルの存在チェック
+    (unless input
+      (format t "Error: --gif mode requires an input file.~%")
+      (uiop:quit 1))
+
+    ;; 入力拡張子のチェック
+    (let ((ext (input-extension input)))
+      (unless (member ext +allowed-input-extensions+ :test #'string-equal)
+        (format t "~a visp does not support the input file extension '~a' in GIF mode.~%"
+                (log-tag "error") ext)
+        (uiop:quit 1)))
+
+    ;; 禁止されている他オプションが使われていないかチェック
+    (let ((disallowed-options (list
+                                (visp-options-res opts)
+                                (visp-options-codec opts)
+                                (visp-options-scale opts)
+                                (visp-options-fps opts)
+                                (visp-options-repeat opts)
+                                (visp-options-half opts)
+                                (visp-options-rev opts)
+                                (visp-options-mute opts)
+                                (visp-options-mono opts)
+                                (visp-options-merge-files opts))))
+      (when (some #'identity disallowed-options)
+        (format t "~a --gif cannot be combined with other options.~%" (log-tag "error"))
+        (uiop:quit 1)))))
+
 (defun validate-merge-files (opts)
   "Validate options specific to --merge mode."
   (let* ((files (visp-options-merge-files opts)))
@@ -230,6 +261,10 @@
   (validate-mono opts))
 
 (defun dispatch-validation (opts)
-  (if (visp-options-merge-files opts)
-      (validate-merge-files opts)
-      (validate-options opts)))
+  (cond
+    ((visp-options-merge-files opts)
+     (validate-merge-files opts))
+    ((visp-options-gif opts)
+     (validate-gif-mode opts))
+    (t
+     (validate-options opts))))

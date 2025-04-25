@@ -9,6 +9,14 @@
             (coerce val 'float))) ; int → float に変換
     (error () nil)))
 
+(defun safe-parse-float (str)
+  (let ((val (parse-float str)))
+    (if val
+        val
+        (progn
+          (format t "~a Invalid float value: ~a~%" (log-tag "error") str)
+          (uiop:quit 1)))))
+
 (defun parse-frame-rate (rate)
   (handler-case
       (let ((parts (uiop:split-string rate :separator "/")))
@@ -32,6 +40,13 @@
 (defun codec-info-from-key (key)
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
+
+(defun generate-gif-output-filename (input)
+  "Generate a .gif filename from the input video filename."
+  (let* ((base (file-namestring input))
+         (dot-pos (position #\. base :from-end t))
+         (name (subseq base 0 dot-pos)))
+    (concatenate 'string name ".gif")))
 
 (defun generate-merge-output-filename (opts)
   "Generate output filename for --merge mode, based on the first file in the list."

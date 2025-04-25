@@ -13,6 +13,22 @@
         (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
         (uiop:run-program cmd :output t :error-output t))))
 
+(defun build-gif-cmd (opts output fps)
+  "Construct the ffmpeg command list for GIF mode using input filename and target fps."
+  (let* ((input (visp-options-input opts))
+         (cmd (list "ffmpeg" "-i" input))
+         (half-fps (/ fps 2.0))
+         (scale-str (format nil "scale=~a" +gif-scale+))
+         (fps-str (format nil "fps=~2,2f" half-fps))
+         (filter-complex
+           (format nil
+             "[0:v] ~a,~a,split [a][b];[a] palettegen=stats_mode=single [p];[b][p] paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle:new=1"
+              fps-str scale-str)))
+
+    (setf cmd (append cmd (list "-filter_complex" filter-complex)))
+    (setf cmd (append cmd (list "-y" output)))
+    cmd))
+
 (defun build-concat-filter (files video-info audio-enabled-p)
   "Generate filter_complex string for ffmpeg concat."
   (let* ((fps (getf video-info :fps))

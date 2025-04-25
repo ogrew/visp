@@ -27,3 +27,5 @@
 
 (defparameter +allowed-input-extensions+
   '(".mp4" ".mov" ".flv" ".avi" ".webm"))
+
+(defparameter +gif-scale+ "640:-1")

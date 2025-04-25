@@ -17,8 +17,12 @@
 *.wx32fsl
 *.mp4
 *.mov
+*.gif
+*.avi
+*.flv
 
 visp
+
 
 # Ignore ASDF index
 system-index.txt

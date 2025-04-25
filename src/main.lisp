@@ -1,7 +1,6 @@
 (in-package :visp)
 
 (defun main (&optional args)
-
   (unless (ffmpeg-available-p)
     (format t "~a ffmpeg not found in your system. Please install ffmpeg first.~%" (log-tag "error"))
     (uiop:quit 1))
@@ -14,18 +13,27 @@
     (print-help)
     (uiop:quit 0))
 
-  (let ((opts (parse-args-to-options args)))  ;;引数解析
-        (dispatch-validation opts)            ;;バリデーション
+  (let ((opts (parse-args-to-options args)))
+    (dispatch-validation opts)
 
-    (if (visp-options-merge-files opts)
+    (cond
+      ;; 1. GIF モード
+      ((visp-options-gif opts)
+       (let* ((input (visp-options-input opts))
+              (fps (get-video-fps input)) 
+              (output (generate-gif-output-filename input))
+              (cmd (build-gif-cmd opts output fps)))
+         (run-cmd cmd output (visp-options-dry-run opts))))
 
-      ;; 動画結合ルート
-      (let* ((output (generate-merge-output-filename opts))
-            (cmd (build-merge-cmd opts output)))
-          (run-cmd cmd output (visp-options-dry-run opts)))
-      
-      ;;通常ルート
-      (let* ((ext (getf (visp-options-codec-info opts) :ext))
-            (output (generate-output-filename opts ext))
-            (cmd (build-cmd opts output)))
-          (run-cmd cmd output (visp-options-dry-run opts))))))
+      ;; 2. 結合モード
+      ((visp-options-merge-files opts)
+       (let* ((output (generate-merge-output-filename opts))
+              (cmd (build-merge-cmd opts output)))
+         (run-cmd cmd output (visp-options-dry-run opts))))
+
+      ;; 3. 通常処理
+      (t
+       (let* ((ext (getf (visp-options-codec-info opts) :ext))
+              (output (generate-output-filename opts ext))
+              (cmd (build-cmd opts output)))
+         (run-cmd cmd output (visp-options-dry-run opts)))))))

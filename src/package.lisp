@@ -8,6 +8,7 @@
    :+codec-map+
    :+pixfmt-name-map+
    :+allowed-input-extensions+
+   +gif-scale+
 
    ;; main.lisp
    :main
@@ -17,6 +18,7 @@
 
   ;; validate.lisp
   :validate-merge-files
+  :validate-gif-mode
   :validate-input
   :validate-reverse
   :validate-repeat
@@ -36,18 +38,21 @@
    :codec-info-from-key
    :generate-output-filename
    :generate-merge-output-filename
+   :generate-gif-output-filename
    :string-replace
    :clean-args
    :string-prefix-p
 
    ;; video.lisp
    :get-video-dims
+   :get-video-fps
    :get-video-info
    :print-video-info
    :all-have-audio-p
 
    ;; ffmpeg.lisp
    :run-cmd
+   :build-gif-cmd
    :build-concat-filter
    :build-merge-cmd
    :build-cmd
@@ -74,4 +79,5 @@
    :visp-options-rev
    :visp-options-dry-run
    :visp-options-merge-files
+   :visp-options-gif
    ))

@@ -14,6 +14,7 @@
   mono      ;boolean
   dry-run   ;boolean
   merge-files
+  gif       ;boolean
 )
 
 (defun parse-args-to-options (args)
@@ -60,7 +61,12 @@
                           do (push val files)
                               (incf i))
                     (setf (visp-options-merge-files opts) (nreverse files))))
-                  (t
+                 ((string= key "--gif")
+                  (when (< (1+ i) (length args))
+                    (setf (visp-options-gif opts) t)
+                    (setf (visp-options-input opts) (nth (1+ i) args))
+                    (incf i)))
+                 (t
                   (format t "~a visp does not support the option '~a'.~%" (log-tag "error") key)
                   (uiop:quit 1)))))
     opts))

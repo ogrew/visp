@@ -14,6 +14,24 @@
             (h (parse-integer (second parts))))
         (cons w h)))))
 
+(defun get-video-fps (input)
+  "Extract the frame rate (fps) of the video as a float using ffprobe."
+  (let* ((cmd (list "ffprobe" "-v" "error"
+                    "-select_streams" "v:0"
+                    "-show_entries" "stream=avg_frame_rate"
+                    "-of" "default=noprint_wrappers=1:nokey=1"
+                    input))
+         (output (string-trim '(#\Newline) (uiop:run-program cmd :output :string)))
+         (parts (uiop:split-string output :separator "/")))
+    (cond
+      ((= (length parts) 2)
+       (/ (safe-parse-float (first parts)) (safe-parse-float (second parts))))
+      ((= (length parts) 1)
+       (safe-parse-float (first parts)))
+      (t
+       (format t "~a Failed to extract FPS from input: ~a~%" (log-tag "error") output)
+       (uiop:quit 1)))))
+
 (defun get-video-info (input)
   "Return an alist of video info: resolution, fps, duration, codec, audio codec, etc."
   (let* ((cmd (list "ffprobe" "-v" "error"
