@@ -1,6 +1,6 @@
 (in-package :visp)
 
-(defconstant +resolution-map+
+(defparameter +resolution-map+
   '(("hd"     . (1280 . 720))
     ("720p"   . (1280 . 720))
     ("fhd"    . (1920 . 1080))
@@ -9,7 +9,7 @@
     ("4k"     . (3840 . 2160))
     ("8k"     . (7680 . 4320))))
 
-(defconstant +codec-map+
+(defparameter +codec-map+
   '(("h264"  . (:encoder "libx264"    :ext ".mp4"))
     ("h265"  . (:encoder "libx265"    :ext ".mp4"))
     ("hevc"  . (:encoder "libx265"    :ext ".mp4")) ; alias
@@ -17,7 +17,7 @@
     ("hap"    . (:encoder "hap"       :ext ".mov" :pix_fmt "yuva420p"))
     ))
 
-(defconstant +pixfmt-name-map+
+(defparameter +pixfmt-name-map+
   '(("yuv422p10le" . "ProRes 422 HQ / LT")
     ("yuv444p10le" . "ProRes 4444")
     ("yuva420p"    . "HAP Alpha")
@@ -25,5 +25,5 @@
     ;; 必要に応じて拡張
     ))
 
-(defconstant +allowed-input-extensions+
+(defparameter +allowed-input-extensions+
   '(".mp4" ".mov" ".flv" ".avi" ".webm"))

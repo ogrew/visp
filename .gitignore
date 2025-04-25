@@ -19,3 +19,6 @@
 *.mov
 
 visp
+
+# Ignore ASDF index
+system-index.txt

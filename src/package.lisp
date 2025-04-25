@@ -35,6 +35,7 @@
    :resolution-from-key
    :codec-info-from-key
    :generate-output-filename
+   :generate-merge-output-filename
    :string-replace
    :clean-args
    :string-prefix-p
