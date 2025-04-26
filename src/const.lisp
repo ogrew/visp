@@ -15,7 +15,8 @@
     ("hevc"  . (:encoder "libx265"    :ext ".mp4")) ; alias
     ("prores" . (:encoder "prores_ks" :ext ".mov" :pix_fmt "yuv422p10le"))
     ("hap"    . (:encoder "hap"       :ext ".mov" :pix_fmt "yuva420p"))
-    ))
+    ("vp9"    . (:encoder "libvpx-vp9" :ext ".webm"))
+    ("vp8"    . (:encoder "libvpx"     :ext ".webm"))))
 
 (defparameter +pixfmt-name-map+
   '(("yuv422p10le" . "ProRes 422 HQ / LT")
