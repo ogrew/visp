@@ -6,7 +6,7 @@
   ;; Usageセクション
   (format t "Usage:~%")
   (format t "  visp --input <file> [options]    ;; Normal mode~%")
-  (format t "  visp --merge <file1> <file2> ... ;; Merge multiple mp4 files into one~%~%")
+  (format t "  visp --merge <file1> <file2> ... ;; Merge multiple mp4 files into one~%")
   (format t "  visp --gif <file>                ;; Convert a single video to GIF~%~%")
 
   ;; Normal mode options
