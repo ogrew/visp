@@ -21,8 +21,9 @@
 *.avi
 *.flv
 
-visp
+*.zip
 
+visp
 
 # Ignore ASDF index
 system-index.txt
