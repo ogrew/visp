@@ -98,7 +98,7 @@ Sample output:
 [WARN] Detected different resolutions across files. All will be scaled to 1920x1080.
 [WARN] Detected different fps values. All will be converted to 60.0fps.
 [INFO] Planned output file: clipA_merged.mp4
-[DRY-RUN] Command: ffmpeg ...
+[DRY-RUN] Command: ffmpeg -i clipA.mp4 -i clipB.mp4 -filter_complex "[0:v:0]scale=1920:1080,fps=60[v0];[1:v:0]scale=1920:1080,fps=60[v1];[0:a:0][1:a:0]concat=n=2:v=1:a=1[outv][outa]" -map "[outv]" -map "[outa]" -c:v libx264 -c:a aac -y clipA_merged.mp4
 ```
 
 ## GIF Mode
@@ -132,17 +132,39 @@ Sample output:
 [DRY-RUN] Command: ffmpeg -i teaser.mp4 -filter_complex [0:v] fps=15.00,scale=640:-1,split [a][b];[a] palettegen=stats_mode=single [p];[b][p] paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle:new=1 -y teaser.gif
 ```
 
-## TODO
+## Install
 
-Planned features and improvements for future versions of `visp`:
+The easiest way to install **visp** is now via Homebrew! 🍻
 
-- 🌀 Batch mode: Process all video files in a folder with the same options.
-- 🖼 Image sequence to video: Support for turning numbered images (e.g., `%04d.png`) into a single video.
-- 🧩 Multi-input tiling: Combine up to 4 videos into a 2×2 tiled layout.
+> **Note:** visp currently supports **Apple Silicon (arm64) Macs** only.
 
-## Build & Setup
+### Install with Homebrew (Recommended)
 
-Requires [Roswell](https://github.com/roswell/roswell) and [SBCL](http://www.sbcl.org)
+Step 1. Tap the repository:
+
+```bash
+brew tap ogrew/visp
+```
+
+Step 2. Install visp:
+
+```bash
+brew install visp
+```
+
+Step 3. Verify installation:
+
+```bash
+visp --help
+```
+
+That's it! Now you can use `visp` from anywhere.
+
+### Build from source (Alternative)
+
+If you prefer building manually or are not using Homebrew, you can build visp from source.
+
+Requires [Roswell](https://github.com/roswell/roswell) and [SBCL](http://www.sbcl.org).
 
 ```bash
 git clone https://github.com/ogrew/visp.git
@@ -150,7 +172,7 @@ cd visp
 ros build visp.ros
 ```
 
-To run `visp` from anywhere, move the binary into a directory included in your $PATH, such as /usr/local/bin:
+Move the generated binary into a directory included in your `$PATH` (e.g., `/usr/local/bin`):
 
 ```bash
 sudo mv visp /usr/local/bin/
@@ -162,6 +184,14 @@ Then you can use it like this:
 ```bash
 visp --help
 ```
+
+## TODO
+
+Planned features and improvements for future versions of `visp`:
+
+- 🌀 Batch mode: Process all video files in a folder with the same options.
+- 🖼 Image sequence to video: Support for turning numbered images (e.g., `%04d.png`) into a single video.
+- 🧩 Multi-input tiling: Combine up to 4 videos into a 2×2 tiled layout.
 
 ## Requirements
 
