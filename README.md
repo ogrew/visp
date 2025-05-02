@@ -40,6 +40,9 @@ visp --merge intro.mp4 scene.mp4 outro.mp4
 
 # Convert a video to an animated GIF (fixed size, half fps)
 visp --gif teaser.mp4
+
+# Apply the same options to all videos in a directory (batch processing)
+visp --input videos/ --mono --fps 24
 ```
 
 Output filenames are automatically determined based on options.
@@ -57,7 +60,7 @@ Examples:
 
 | Option      | Argument                                      | Description                                                      |
 | ----------- | --------------------------------------------- | ---------------------------------------------------------------- |
-| `--input`   | `<file>`                                      | **Required.** Path to the input video file.                      |
+| `--input`   | `<file or directory>`                         | **Required.** Path to the input video file or directory.         |
 | `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`                 | Target resolution (e.g. `fhd` → 1920×1080).                      |
 | `--codec`   | `h264`, `h265`, `prores`, `hap`, `vp8`, `vp9` | Video codec (also determines container and pixel format).        |
 | `--fps`     | `<number>`                                    | Set output framerate (e.g. 24, 30, 60).                          |
@@ -68,6 +71,10 @@ Examples:
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
+
+**Note:**  
+If a directory is specified with `--input`, all video files in the directory will be processed in batch.
+The generated output files will be saved in the same directory as each input file.
 
 ## Merge Mode
 
@@ -189,7 +196,6 @@ visp --help
 
 Planned features and improvements for future versions of `visp`:
 
-- 🌀 Batch mode: Process all video files in a folder with the same options.
 - 🖼 Image sequence to video: Support for turning numbered images (e.g., `%04d.png`) into a single video.
 - 🧩 Multi-input tiling: Combine up to 4 videos into a 2×2 tiled layout.
 

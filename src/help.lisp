@@ -13,7 +13,9 @@
 
   ;; Normal mode options
   (format t "Normal mode options:~%")
-  (format t "  --input <file>        Input video file (required)~%")
+  (format t "  --input <file>        Input video file or directory (required)~%")
+  (format t "                        - If a directory is specified, all video files in it will be processed in batch.~%")
+  (format t "                        - Output files will be placed in the same directory as input files.~%")
   (format t "  --res <label>         Set resolution (hd, fhd, 2k, 4k, etc)~%")
   (format t "  --half                Downscale to half resolution~%")
   (format t "  --fps <number>        Set output framerate (e.g., 30)~%")
