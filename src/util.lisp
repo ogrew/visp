@@ -90,6 +90,12 @@
             repeat-suffix 
             ext))))
 
+(defun output-path-in-same-directory (input-file output-filename)
+  "Return the full path of output file placed in the same directory as input-file."
+  (namestring
+   (merge-pathnames output-filename
+                    (uiop:pathname-directory-pathname (pathname input-file)))))
+
 (defun string-replace (str from to)
   "Replace all instances of character FROM with TO in STR."
   (coerce

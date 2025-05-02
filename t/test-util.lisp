@@ -61,3 +61,18 @@
 
   (testing "Handles empty string"
     (ok (equal (visp:clean-args '("")) '("")))))
+
+
+(deftest output-path-in-same-directory-tests
+  (testing "Output path is correctly generated in same directory"
+    ;; Case 1: 通常のパス
+    (ok (string= (visp:output-path-in-same-directory "/Users/ogrew/videos/video01.mp4" "video01_fhd.mp4")
+                 "/Users/ogrew/videos/video01_fhd.mp4"))
+
+    ;; Case 2: ディレクトリの末尾がスラッシュでない場合
+    (ok (string= (visp:output-path-in-same-directory "/Users/ogrew/videos/video02" "video02_fhd.mp4")
+                 "/Users/ogrew/videos/video02_fhd.mp4"))
+
+    ;; Case 3: カレントディレクトリ (相対パス)
+    (ok (string= (visp:output-path-in-same-directory "video03.mp4" "video03_fhd.mp4")
+                 "video03_fhd.mp4"))))

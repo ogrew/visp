@@ -42,6 +42,7 @@
    :string-replace
    :clean-args
    :string-prefix-p
+   :output-path-in-same-directory
 
    ;; video.lisp
    :get-video-dims
@@ -80,4 +81,5 @@
    :visp-options-dry-run
    :visp-options-merge-files
    :visp-options-gif
+   :visp-options-batch-files
    ))

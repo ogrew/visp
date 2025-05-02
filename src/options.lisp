@@ -14,6 +14,7 @@
   mono      ;boolean
   dry-run   ;boolean
   merge-files
+  batch-files
   gif       ;boolean
 )
 

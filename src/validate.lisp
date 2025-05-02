@@ -105,27 +105,51 @@
 
 
 (defun validate-input (opts)
-  "Check if input file is provided and has a supported extension."
+  "Check if input file or directory is provided and valid. If directory, collect target files."
   (let ((input (visp-options-input opts)))
-    ;; 入力ファイルは必須
+    ;; 入力の有無は必須
     (unless input
-      (format t "Usage: visp --input <filename> [--res 4k] [--mute] ...~%")
+      (format t "Usage: visp --input <filename or directory> [--res 4k] [--mute] ...~%")
       (uiop:quit 1))
 
-    ;; ファイルの存在確認
-    (unless (probe-file input)
-      (format t "~a Input file '~a' does not exist.~%" (log-tag "error") input)
-      (uiop:quit 1))
+    ;; ディレクトリ指定っぽい場合
+    (if (uiop:directory-pathname-p input)
+        (progn
+          ;; ディレクトリが存在するか
+          (unless (uiop:directory-exists-p input)
+            (format t "~a Directory '~a' does not exist.~%" (log-tag "error") input)
+            (uiop:quit 1))
 
-    ;; 拡張子チェック
-    (let ((ext (input-extension input)))
-      (unless (member ext +allowed-input-extensions+ :test #'string-equal)
-        (format t "~a visp does not support the input file extension '~a'.~%"
-                (log-tag "error") ext)
-        (uiop:quit 1)))
-    
-    ;; 動画情報の表示
-    (print-video-info (get-video-info input))))
+          ;; 対象ファイルの取得
+          (let ((files (remove-if-not
+                         #'(lambda (p)
+                             (member (input-extension p) +allowed-input-extensions+ :test #'string-equal))
+                         (uiop:directory-files input))))
+            (when (null files)
+              (format t "~a No valid video files found in directory '~a'.~%" (log-tag "error") input)
+              (uiop:quit 1))
+
+            ;; batch-files にファイル名(string型格納
+            (setf (visp-options-batch-files opts) (mapcar #'namestring files))
+
+            (format t "~a Batch mode: ~a video file(s) found in directory.~%" (log-tag "info") (length files))))
+
+        ;; ファイル指定の場合
+        (progn
+          ;; ファイル存在チェック
+          (unless (probe-file input)
+            (format t "~a Input file '~a' does not exist.~%" (log-tag "error") input)
+            (uiop:quit 1))
+
+          ;; 拡張子チェック
+          (let ((ext (input-extension input)))
+            (unless (member ext +allowed-input-extensions+ :test #'string-equal)
+              (format t "~a visp does not support the input file extension '~a'.~%"
+                      (log-tag "error") ext)
+              (uiop:quit 1)))
+
+            ;; 動画情報の表示
+            (print-video-info (get-video-info input))))))
 
 (defun validate-reverse (opts)
   "Validate reverse option: only allowed for .mp4/.mov, cannot be used with --loop, implies mute."
