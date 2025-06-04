@@ -17,6 +17,9 @@ Originally created as a Lisp learning project, `visp` has grown into a practical
 # Downscale a 4K video to 1080p and remove audio
 visp --input sample_4k.mp4 --res fhd --mute
 
+# Specify resolution explicitly with width and height
+visp --input clip.mp4 --res 1280x720
+
 # Transcode to HAP codec, preserving resolution and audio
 visp --input sample.mov --codec hap
 
@@ -61,7 +64,7 @@ Examples:
 | Option      | Argument                                      | Description                                                      |
 | ----------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | `--input`   | `<file or directory>`                         | **Required.** Path to the input video file or directory.         |
-| `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`                 | Target resolution (e.g. `fhd` → 1920×1080).                      |
+| `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`, `<WxH>`        | Target resolution (e.g. `fhd` or `1920x1080`).                   |
 | `--codec`   | `h264`, `h265`, `prores`, `hap`, `vp8`, `vp9` | Video codec (also determines container and pixel format).        |
 | `--fps`     | `<number>`                                    | Set output framerate (e.g. 24, 30, 60).                          |
 | `--mute`    | _(flag)_                                      | Strip out the audio track.                                       |
