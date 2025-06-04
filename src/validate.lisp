@@ -207,9 +207,11 @@
 
     ;; --res が指定されていれば有効な解像度か確認
     (when res
-      (let ((pair (resolution-from-key res)))
-        (if pair
-            (setf (visp-options-scale opts) (cdr pair)) ; 正常なら scale にセット
+      (let* ((pair (resolution-from-key res))
+             (dims (or (and pair (cdr pair))
+                       (parse-dimensions res))))
+        (if dims
+            (setf (visp-options-scale opts) dims)
             (progn
               (format t "~a visp does not support the resolution '~a'.~%"
                       (log-tag "error") res)

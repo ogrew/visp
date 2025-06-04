@@ -35,6 +35,7 @@
    :parse-float
    :parse-frame-rate
    :resolution-from-key
+   :parse-dimensions
    :codec-info-from-key
    :generate-output-filename
    :generate-merge-output-filename
