@@ -16,7 +16,7 @@
   (format t "  --input <file>        Input video file or directory (required)~%")
   (format t "                        - If a directory is specified, all video files in it will be processed in batch.~%")
   (format t "                        - Output files will be placed in the same directory as input files.~%")
-  (format t "  --res <label>         Set resolution (hd, fhd, 2k, 4k, etc)~%")
+  (format t "  --res <label|WxH>    Set resolution (e.g., fhd or 1280x720)~%")
   (format t "  --half                Downscale to half resolution~%")
   (format t "  --fps <number>        Set output framerate (e.g., 30)~%")
   (format t "  --codec <type>        Set codec (h264, h265, prores, hap, vp8, vp9)~%")

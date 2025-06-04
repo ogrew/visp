@@ -37,6 +37,17 @@
   "Return (width . height) if key is valid; otherwise NIL"
   (assoc key +resolution-map+ :test #'string-equal))
 
+(defun parse-dimensions (str)
+  "Parse WIDTHxHEIGHT string and return cons (width . height).
+Accepts integers including -1. Returns NIL on malformed input."
+  (let ((parts (uiop:split-string str :separator "x")))
+    (when (= (length parts) 2)
+      (handler-case
+          (let ((w (parse-integer (string-trim '(#\Space) (first parts))))
+                (h (parse-integer (string-trim '(#\Space) (second parts)))))
+            (cons w h))
+        (error () nil)))))
+
 (defun codec-info-from-key (key)
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
