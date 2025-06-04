@@ -35,6 +35,15 @@
     (ok (null (visp:resolution-from-key "unknown")))
     (ok (null (visp:resolution-from-key "")))))
 
+(deftest parse-dimensions-tests
+  (testing "Parses valid WxH strings"
+    (ok (equal (visp:parse-dimensions "1920x1080") '(1920 . 1080)))
+    (ok (equal (visp:parse-dimensions "1280x-1") '(1280 . -1))))
+
+  (testing "Returns NIL for malformed strings"
+    (ok (null (visp:parse-dimensions "1920*1080")))
+    (ok (null (visp:parse-dimensions "x720")))))
+
 (deftest codec-info-from-key-tests
   (testing "Returns correct plist for known codecs"
     (ok (equalp (visp:codec-info-from-key "h264")
