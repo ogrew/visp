@@ -21,7 +21,7 @@
   (format t "  --fps <number>        Set output framerate (e.g., 30)~%")
   (format t "  --codec <type>        Set codec (h264, h265, prores, hap, vp8, vp9)~%")
   (format t "  --mono                Convert to grayscale (h264/h265 only)~%")
-  (format t "  --reverse             Reverse video playback (audio unaffected)~%")
+  (format t "  --reverse             Reverse video playback (audio is automatically muted)~%")
   (format t "  --loop <n>            Loop playback n times (e.g., 3 = 4 total plays)~%")
   (format t "  --mute                Remove audio track~%")
   (format t "  --dry-run             Show ffmpeg command without executing~%")
