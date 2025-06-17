@@ -109,4 +109,23 @@
       (setf (visp:visp-options-res opts) "fhd")
       (setf (visp:visp-options-hflip opts) t)
       (setf (visp:visp-options-mute opts) t)
-      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_HFlip.mp4")))))
+      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_HFlip.mp4"))))
+
+(deftest generate-output-filename-with-speed-tests
+  (testing "Filename generation includes speed suffixes"
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-speed opts) 2.0)
+      (ok (string= (visp:generate-output-filename opts) "test_2.0xSpeed.mp4")))
+    
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-speed opts) 0.5)
+      (ok (string= (visp:generate-output-filename opts) "test_0.5xSpeed.mp4")))
+    
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-res opts) "fhd")
+      (setf (visp:visp-options-speed opts) 1.5)
+      (setf (visp:visp-options-mute opts) t)
+      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_1.5xSpeed.mp4"))))))

@@ -24,6 +24,7 @@
   (format t "  --reverse             Reverse video playback (audio is automatically muted)~%")
   (format t "  --hflip               Flip video horizontally~%")
   (format t "  --vflip               Flip video vertically~%")
+  (format t "  --speed <factor>      Change playback speed (e.g., 2.0 = 2x speed, 0.5 = half speed)~%")
   (format t "  --loop <n>            Loop playback n times (e.g., 3 = 4 total plays)~%")
   (format t "  --mute                Remove audio track~%")
   (format t "  --dry-run             Show ffmpeg command without executing~%")
