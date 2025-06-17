@@ -27,6 +27,7 @@
   :validate-fps
   :validate-codec
   :validate-mono
+  :validate-speed
   :validate-options
   :dispatch-validation
 
@@ -80,6 +81,7 @@
    :visp-options-mono
    :visp-options-hflip
    :visp-options-vflip
+   :visp-options-speed
    :visp-options-rev
    :visp-options-dry-run
    :visp-options-merge-files

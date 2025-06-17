@@ -80,4 +80,24 @@
       (ok (equal (visp:build-cmd opts output)
                  '("ffmpeg" "-y" "-i" "input.mp4"
                             "-vf" "scale=1280:720,reverse,hflip"
-                            "complex.mp4"))))))
+                            "complex.mp4")))))
+
+  (testing "cmd with speed filter"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :speed 2.0))
+          (output "speed.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "setpts=PTS/2.0"
+                            "speed.mp4")))))
+
+  (testing "cmd with speed and other filters"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :scale '(1920 . 1080)
+                                    :speed 0.5
+                                    :hflip t))
+          (output "complex-speed.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "scale=1920:1080,setpts=PTS/0.5,hflip"
+                            "complex-speed.mp4"))))))
