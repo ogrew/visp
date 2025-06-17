@@ -94,3 +94,145 @@ ros run --eval "(push #p\"./\" asdf:*central-registry*)" \
 3. **テスト実行**: 関数定義後は必ず`make test`を実行して既存機能に影響がないことを確認
 
 Common Lispでは同じパッケージ内で同名関数を再定義すると警告なしに上書きされるため、特に注意が必要です。
+
+## 今後のリファクタリングタスク
+
+### 高優先度
+
+#### 出力ファイル名生成関数の引数統一
+現在の出力ファイル名生成関数の引数が不統一になっている問題を修正する：
+
+**現在の状況:**
+```lisp
+generate-gif-output-filename (input &optional opts)     ; inputが第一引数
+generate-merge-output-filename (opts)                   ; optsのみ
+generate-output-filename (opts &optional ext)           ; optsが第一引数
+```
+
+**目標:**
+```lisp
+generate-gif-output-filename (opts)                     ; optsに統一
+generate-merge-output-filename (opts)                   ; 変更なし
+generate-output-filename (opts &optional ext)           ; 変更なし
+```
+
+**必要な作業:**
+1. `generate-gif-output-filename`の引数を`(opts)`のみに変更
+2. `main.lisp`のGIFモードでの呼び出し方法を修正
+3. 関連するテストケースの更新
+4. 関数の一貫性向上により保守性を改善
+
+**影響範囲:**
+- `src/util.lisp`: 関数シグネチャの変更
+- `src/main.lisp`: GIFモード処理の呼び出し修正
+- `t/test-util.lisp`: テストケースの更新
+
+#### 関数名重複問題の解決
+`util.lisp`と`validate.lisp`で類似のパース関数が重複している問題を統合する：
+
+**問題:**
+- `util.lisp:3-10`: `parse-float`関数
+- `util.lisp:12-18`: `safe-parse-float`関数（parse-floatのラッパー）
+- `validate.lisp:284-288`: `parse-speed-float`関数（独自実装）
+- `video.lisp:28`: `safe-parse-float`を参照しているが定義場所が曖昧
+
+**解決策:**
+1. 共通のパース関数を`util.lisp`に統合
+2. エラーハンドリングを統一
+3. 全ての呼び出し箇所を統一された関数に修正
+
+#### ffmpeg実行エラーハンドリング強化
+`ffmpeg.lisp:14`の`run-cmd`関数でエラーハンドリングが不十分：
+
+**現在の問題:**
+- ffmpeg実行失敗時のエラー情報が不十分
+- 出力ディレクトリの書き込み権限チェックなし
+- 処理中断時の一時ファイル削除なし
+
+**改善策:**
+1. ffmpegの詳細エラーメッセージ取得
+2. 事前の書き込み権限チェック
+3. 処理中断時のクリーンアップ処理
+
+### 中優先度
+
+#### 設定ファイル（プリセット）機能の追加
+頻繁に使用するオプション組み合わせをプリセットとして保存：
+
+```bash
+visp --preset mobile-hd --input video.mp4  # プリセット使用
+visp --save-preset mobile-hd --res hd --fps 30 --codec h264  # プリセット保存
+```
+
+#### 品質設定オプションの追加
+ユーザビリティ向上のための品質プリセット：
+
+```bash
+visp --input video.mp4 --quality high    # 高品質（低圧縮）
+visp --input video.mp4 --quality medium  # 標準品質
+visp --input video.mp4 --quality low     # 高圧縮（ファイルサイズ優先）
+```
+
+#### コード品質改善
+- `validate.lisp`の`validate-merge-files`関数（110行）を小さな関数に分割
+- マジックナンバーの定数化（`ffmpeg.lisp:20`のGIF fps計算など）
+- エラーメッセージの日英統一
+- 関数レベルdocstringの追加
+
+#### 統合テストの充実
+- 実際のffmpeg実行を含むエンドツーエンドテスト
+- エラーケースの異常系テスト
+- バッチ処理でのファイル競合テスト
+
+### 低優先度
+
+#### プログレス表示機能
+長時間処理での進捗表示：
+
+```bash
+visp --input large-video.mp4 --res 4k --progress
+# [████████████████████████████████] 85% (02:45 remaining)
+```
+
+#### メタデータ保持オプション
+元ファイルのメタデータ（タイトル、作成日時など）を保持：
+
+```bash
+visp --input video.mp4 --res fhd --keep-metadata
+```
+
+#### パフォーマンス最適化
+- バッチモードでの並列処理対応
+- ffprobeの結果キャッシュ（同じファイルの重複解析回避）
+- 大きなファイル処理時のメモリ最適化
+
+#### カスタムフィルタ機能
+フィルタチェーンのカスタマイズ：
+
+```bash
+visp --input video.mp4 --filters "blur=3,sharpen=1,fade=in:0:30"
+```
+
+### その他
+
+#### ドキュメント改善
+- 内部関数のdocstring充実
+- アーキテクチャ図の追加
+- エラー解決ガイドの作成
+- パフォーマンス指標の文書化
+
+#### 開発環境整備
+- CI/CDパイプラインでの自動テスト
+- コードカバレッジ測定
+- リンター設定の強化
+- 依存関係の自動更新
+
+#### 命名の一貫性改善
+- `options.lisp:11`: `repeat`フィールドと`--loop`オプション名の不整合解決
+- `encoder-available-p`→`encoder-exists-p`など関数名の明確化
+- 変数名の統一（キャメルケース vs ケバブケース）
+
+#### 国際化対応
+- 日本語コメントの英語化
+- エラーメッセージの多言語対応
+- ヘルプメッセージの国際化
