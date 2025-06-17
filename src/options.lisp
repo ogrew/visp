@@ -12,6 +12,8 @@
   rev       ;boolean
   mute      ;boolean
   mono      ;boolean
+  hflip     ;boolean
+  vflip     ;boolean
   dry-run   ;boolean
   merge-files
   batch-files
@@ -52,6 +54,10 @@
                   (setf (visp-options-rev opts) t))
                  ((string= key "--mono")
                   (setf (visp-options-mono opts) t))
+                 ((string= key "--hflip")
+                  (setf (visp-options-hflip opts) t))
+                 ((string= key "--vflip")
+                  (setf (visp-options-vflip opts) t))
                  ((string= key "--dry-run")
                   (setf (visp-options-dry-run opts) t))
                  ((string= key "--merge")

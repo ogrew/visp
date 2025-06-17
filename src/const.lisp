@@ -32,3 +32,7 @@
   '(".mp4" ".mov" ".flv" ".avi" ".webm"))
 
 (defparameter +gif-scale+ "640:-1")
+
+(defparameter +flip-filters+
+  '(("hflip" . "hflip")
+    ("vflip" . "vflip")))

@@ -85,3 +85,28 @@
     ;; Case 3: カレントディレクトリ (相対パス)
     (ok (string= (visp:output-path-in-same-directory "video03.mp4" "video03_fhd.mp4")
                  "video03_fhd.mp4"))))
+
+(deftest generate-output-filename-with-flip-tests
+  (testing "Filename generation includes flip suffixes"
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-hflip opts) t)
+      (ok (string= (visp:generate-output-filename opts) "test_HFlip.mp4")))
+    
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-vflip opts) t)
+      (ok (string= (visp:generate-output-filename opts) "test_VFlip.mp4")))
+    
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-hflip opts) t)
+      (setf (visp:visp-options-vflip opts) t)
+      (ok (string= (visp:generate-output-filename opts) "test_HFlip_VFlip.mp4")))
+    
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-res opts) "fhd")
+      (setf (visp:visp-options-hflip opts) t)
+      (setf (visp:visp-options-mute opts) t)
+      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_HFlip.mp4")))))

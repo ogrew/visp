@@ -41,4 +41,43 @@
                  '("ffmpeg" "-y" "-i" "input.mp4"
                             "-an"
                             "-r" "30"
-                            "muted.mp4"))))))
+                            "muted.mp4")))))
+
+  (testing "cmd with hflip filter"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :hflip t))
+          (output "hflipped.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "hflip"
+                            "hflipped.mp4")))))
+
+  (testing "cmd with vflip filter"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :vflip t))
+          (output "vflipped.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "vflip"
+                            "vflipped.mp4")))))
+
+  (testing "cmd with both hflip and vflip filters"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :hflip t
+                                    :vflip t))
+          (output "flipped.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "hflip,vflip"
+                            "flipped.mp4")))))
+
+  (testing "cmd with scale, hflip, and reverse (filter order)"
+    (let ((opts (make-visp-options :input "input.mp4"
+                                    :scale '(1280 . 720)
+                                    :hflip t
+                                    :rev t))
+          (output "complex.mp4"))
+      (ok (equal (visp:build-cmd opts output)
+                 '("ffmpeg" "-y" "-i" "input.mp4"
+                            "-vf" "scale=1280:720,reverse,hflip"
+                            "complex.mp4"))))))

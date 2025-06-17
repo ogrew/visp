@@ -78,6 +78,8 @@
    :visp-options-mute
    :visp-options-half
    :visp-options-mono
+   :visp-options-hflip
+   :visp-options-vflip
    :visp-options-rev
    :visp-options-dry-run
    :visp-options-merge-files
