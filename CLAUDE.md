@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 言語設定
+
+Claude Codeとのやり取りは**日本語**で行ってください。コードコメントやドキュメント作成時も日本語を使用してください。
+
 ## プロジェクト概要
 
 VispはffmpegのミニマルなCommon Lispラッパーです。動画の解像度変換、コーデック変換、音声除去などの一般的な動画処理を簡素化し、出力ファイル名を自動生成します。
