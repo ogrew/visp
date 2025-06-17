@@ -102,6 +102,8 @@
          (mute (visp-options-mute opts))
          (rev (visp-options-rev opts))
          (mono (visp-options-mono opts))
+         (hflip (visp-options-hflip opts))
+         (vflip (visp-options-vflip opts))
          (codec-info (visp-options-codec-info opts))
          (filters '())
          (cmd (list "ffmpeg" "-y")))
@@ -121,6 +123,13 @@
     ;; 逆再生
     (when rev
       (push "reverse" filters))
+    
+    ;; フリップ操作
+    (when hflip
+      (push "hflip" filters))
+    
+    (when vflip
+      (push "vflip" filters))
     
     (when mono
       (push "format=gray" filters))

@@ -88,6 +88,10 @@ Accepts integers including -1. Returns NIL on malformed input."
          (mono-suffix (if mono "_Gray" ""))
          (rev (visp-options-rev opts))
          (rev-suffix (if rev "_Reverse" ""))
+         (hflip (visp-options-hflip opts))
+         (hflip-suffix (if hflip "_HFlip" ""))
+         (vflip (visp-options-vflip opts))
+         (vflip-suffix (if vflip "_VFlip" ""))
          (mute (visp-options-mute opts))
          (mute-suffix (if mute "_noSound" "")))
     (apply #'concatenate 'string 
@@ -96,6 +100,8 @@ Accepts integers including -1. Returns NIL on malformed input."
             fps-suffix 
             mute-suffix 
             rev-suffix 
+            hflip-suffix 
+            vflip-suffix 
             half-suffix 
             mono-suffix 
             repeat-suffix 
