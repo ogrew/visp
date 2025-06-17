@@ -14,6 +14,7 @@
   mono      ;boolean
   hflip     ;boolean
   vflip     ;boolean
+  speed     ;float
   dry-run   ;boolean
   merge-files
   batch-files
@@ -58,6 +59,10 @@
                   (setf (visp-options-hflip opts) t))
                  ((string= key "--vflip")
                   (setf (visp-options-vflip opts) t))
+                 ((string= key "--speed")
+                  (when (< (1+ i) (length args))
+                    (setf (visp-options-speed opts) (nth (1+ i) args))
+                    (incf i)))
                  ((string= key "--dry-run")
                   (setf (visp-options-dry-run opts) t))
                  ((string= key "--merge")

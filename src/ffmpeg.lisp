@@ -104,6 +104,7 @@
          (mono (visp-options-mono opts))
          (hflip (visp-options-hflip opts))
          (vflip (visp-options-vflip opts))
+         (speed (visp-options-speed opts))
          (codec-info (visp-options-codec-info opts))
          (filters '())
          (cmd (list "ffmpeg" "-y")))
@@ -123,6 +124,10 @@
     ;; 逆再生
     (when rev
       (push "reverse" filters))
+    
+    ;; 速度変更
+    (when speed
+      (push (format nil "setpts=PTS/~a" speed) filters))
     
     ;; フリップ操作
     (when hflip

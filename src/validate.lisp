@@ -28,6 +28,7 @@
                                 (visp-options-mono opts)
                                 (visp-options-hflip opts)
                                 (visp-options-vflip opts)
+                                (visp-options-speed opts)
                                 (visp-options-merge-files opts))))
       (when (some #'identity disallowed-options)
         (format t "~a --gif cannot be combined with other options.~%" (log-tag "error"))
@@ -48,7 +49,8 @@
               (visp-options-mute opts)
               (visp-options-mono opts)
               (visp-options-hflip opts)
-              (visp-options-vflip opts))
+              (visp-options-vflip opts)
+              (visp-options-speed opts))
       (format t "~a --merge cannot be combined with other options.~%" (log-tag "error"))
       (uiop:quit 1))
 
@@ -279,6 +281,25 @@
       (when (member codec '("prores" "hap") :test #'string=)
         (error "The --mono option is not supported with codec ~A." codec)))))
 
+(defun validate-speed (opts)
+  "Validate that --speed is a positive number if specified."
+  (let ((speed (visp-options-speed opts)))
+    (when speed
+      (let ((speedf (handler-case (parse-float speed)
+                      (error () nil))))
+        ;; speedは必ず0より大きい数値
+        (unless (and (numberp speedf) (> speedf 0))
+          (format t "~a --speed must be a positive number, but got '~a'.~%" 
+                  (log-tag "error") speed)
+          (uiop:quit 1))
+        ;; 明示的に数値に変換して再セット
+        (setf (visp-options-speed opts) speedf)))))
+
+(defun parse-float (string)
+  "Parse a string as a float. Throws an error if not a valid number."
+  (let ((*read-eval* nil))
+    (with-input-from-string (s string)
+      (read s))))
 
 (defun validate-options (opts)
   (validate-input opts)
@@ -288,7 +309,8 @@
   (validate-half opts)
   (validate-fps opts)
   (validate-codec opts)
-  (validate-mono opts))
+  (validate-mono opts)
+  (validate-speed opts))
 
 (defun dispatch-validation (opts)
   (cond

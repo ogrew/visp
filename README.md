@@ -35,6 +35,12 @@ visp --input intro.mov --reverse
 # Repeat input video 4 times (original + 3 loops)
 visp --input loopclip.mp4 --loop 3
 
+# Change playback speed to 2x
+visp --input sample.mp4 --speed 2.0
+
+# Change playback speed to half (0.5x)
+visp --input sample.mp4 --speed 0.5
+
 # Apply multiple options together
 visp --input raw.mp4 --res hd --codec h265 --fps 24 --mute
 
@@ -57,6 +63,8 @@ Examples:
 - `intro_noSound_Reverse.mp4`
 - `loopclip_x4.mp4`
 - `demo_Half.mp4`
+- `sample_2xSpeed.mp4`
+- `sample_0.5xSpeed.mp4`
 - `teaser.gif`
 
 ## Options
@@ -72,6 +80,7 @@ Examples:
 | `--reverse` | _(flag)_                                      | Reverse the input video (audio is automatically muted).          |
 | `--mono`    | _(flag)_                                      | Convert video to grayscale (supported only with `h264`/`h265`).  |
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
+| `--speed`   | `<factor>`                                    | Change playback speed (e.g. `2.0` = 2x speed, `0.5` = half speed). |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
 

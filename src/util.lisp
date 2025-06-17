@@ -92,6 +92,8 @@ Accepts integers including -1. Returns NIL on malformed input."
          (hflip-suffix (if hflip "_HFlip" ""))
          (vflip (visp-options-vflip opts))
          (vflip-suffix (if vflip "_VFlip" ""))
+         (speed (visp-options-speed opts))
+         (speed-suffix (if speed (format nil "_~axSpeed" speed) ""))
          (mute (visp-options-mute opts))
          (mute-suffix (if mute "_noSound" "")))
     (apply #'concatenate 'string 
@@ -102,6 +104,7 @@ Accepts integers including -1. Returns NIL on malformed input."
             rev-suffix 
             hflip-suffix 
             vflip-suffix 
+            speed-suffix 
             half-suffix 
             mono-suffix 
             repeat-suffix 
