@@ -285,7 +285,7 @@
   "Validate that --speed is a positive number if specified."
   (let ((speed (visp-options-speed opts)))
     (when speed
-      (let ((speedf (handler-case (parse-float speed)
+      (let ((speedf (handler-case (parse-speed-float speed)
                       (error () nil))))
         ;; speedは必ず0より大きい数値
         (unless (and (numberp speedf) (> speedf 0))
@@ -295,8 +295,8 @@
         ;; 明示的に数値に変換して再セット
         (setf (visp-options-speed opts) speedf)))))
 
-(defun parse-float (string)
-  "Parse a string as a float. Throws an error if not a valid number."
+(defun parse-speed-float (string)
+  "Parse a string as a float for speed validation. Throws an error if not a valid number."
   (let ((*read-eval* nil))
     (with-input-from-string (s string)
       (read s))))

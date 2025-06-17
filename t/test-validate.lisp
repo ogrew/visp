@@ -2,22 +2,22 @@
   (:use :cl :rove)
   (:import-from :visp
                 :make-visp-options
-                :parse-float
+                :parse-speed-float
                 :validate-speed))
 
 (in-package :visp.test.validate)
 
-(deftest parse-float-tests
+(deftest parse-speed-float-tests
   (testing "Parses valid float strings"
-    (ok (= (visp:parse-float "2.0") 2.0))
-    (ok (= (visp:parse-float "0.5") 0.5))
-    (ok (= (visp:parse-float "1") 1.0))
-    (ok (= (visp:parse-float "3.14159") 3.14159)))
+    (ok (= (visp:parse-speed-float "2.0") 2.0))
+    (ok (= (visp:parse-speed-float "0.5") 0.5))
+    (ok (= (visp:parse-speed-float "1") 1.0))
+    (ok (= (visp:parse-speed-float "3.14159") 3.14159)))
 
-  (testing "Returns NIL for invalid strings"
-    (ok (null (visp:parse-float "invalid")))
-    (ok (null (visp:parse-float "abc")))
-    (ok (null (visp:parse-float "")))))
+  (testing "Throws error for invalid strings"
+    (ok (signals (visp:parse-speed-float "invalid")))
+    (ok (signals (visp:parse-speed-float "abc")))
+    (ok (signals (visp:parse-speed-float "")))))
 
 (deftest validate-speed-tests
   (testing "Validates positive float values"
