@@ -2,6 +2,7 @@
 
 (defstruct visp-options
   input
+  output
   res
   codec
   codec-info
@@ -30,6 +31,10 @@
                  ((string= key "--input")
                   (when (< (1+ i) (length args))
                     (setf (visp-options-input opts) (nth (1+ i) args))
+                    (incf i)))
+                 ((string= key "--output")
+                  (when (< (1+ i) (length args))
+                    (setf (visp-options-output opts) (nth (1+ i) args))
                     (incf i)))
                  ((string= key "--res")
                   (when (< (1+ i) (length args))

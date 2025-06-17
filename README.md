@@ -44,11 +44,20 @@ visp --input sample.mp4 --speed 0.5
 # Apply multiple options together
 visp --input raw.mp4 --res hd --codec h265 --fps 24 --mute
 
+# Specify custom output filename
+visp --input source.mp4 --res fhd --output final_video.mp4
+
 # Merge multiple mp4 videos into one
 visp --merge intro.mp4 scene.mp4 outro.mp4
 
+# Merge videos with custom output filename
+visp --merge intro.mp4 scene.mp4 outro.mp4 --output compilation.mp4
+
 # Convert a video to an animated GIF (fixed size, half fps)
 visp --gif teaser.mp4
+
+# Convert to GIF with custom output filename
+visp --gif teaser.mp4 --output animation.gif
 
 # Apply the same options to all videos in a directory (batch processing)
 visp --input videos/ --mono --fps 24
@@ -72,6 +81,7 @@ Examples:
 | Option      | Argument                                      | Description                                                      |
 | ----------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | `--input`   | `<file or directory>`                         | **Required.** Path to the input video file or directory.         |
+| `--output`  | `<filename>`                                  | Custom output filename. If not specified, auto-generated based on options. |
 | `--res`     | `hd`, `fhd`, `2k`, `4k`, `8k`, `<WxH>`        | Target resolution (e.g. `fhd` or `1920x1080`).                   |
 | `--codec`   | `h264`, `h265`, `prores`, `hap`, `vp8`, `vp9` | Video codec (also determines container and pixel format).        |
 | `--fps`     | `<number>`                                    | Set output framerate (e.g. 24, 30, 60).                          |
@@ -80,7 +90,7 @@ Examples:
 | `--reverse` | _(flag)_                                      | Reverse the input video (audio is automatically muted).          |
 | `--mono`    | _(flag)_                                      | Convert video to grayscale (supported only with `h264`/`h265`).  |
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
-| `--speed`   | `<factor>`                                    | Change playback speed (e.g. `2.0` = 2x speed, `0.5` = half speed). |
+| `--speed`   | `<factor>`                                    | Change playbook speed (e.g. `2.0` = 2x speed, `0.5` = half speed). |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
 
@@ -102,8 +112,8 @@ Requirements:
 - At least two files are required.
 - Files must either all have audio, or all be silent (no mix).
 - All videos will be normalized to the **resolution and framerate** of the first file.
-- The output file will be named after the first file with `_merged.mp4` appended.
-- `--dry-run` may be combined to preview the command.
+- The output file will be named after the first file with `_merged.mp4` appended, or use `--output` to specify a custom filename.
+- `--dry-run` and `--output` may be combined to preview the command or customize the output filename.
 
 Example:
 
@@ -133,8 +143,8 @@ Details:
 - Only one input file is allowed.
 - The output resolution is fixed to **640 pixels wide**, height is auto-scaled to preserve aspect ratio.
 - The output framerate is set to **half of the original video’s fps**.
-- The output file will be named after the input with `.gif` as the extension.
-- Other options (e.g. `--mute`, `--res`, etc.) **cannot be combined** with `--gif`.
+- The output file will be named after the input with `.gif` as the extension, or use `--output` to specify a custom filename.
+- Other options (e.g. `--mute`, `--res`, etc.) **cannot be combined** with `--gif`, except `--output` and `--dry-run`.
 - `--dry-run` may be used to preview the ffmpeg command.
 - A high-quality palette is generated with `palettegen`, and dithering is applied using `dither=bayer:bayer_scale=3:diff_mode=rectangle` for optimal compression and visual fidelity.
 

@@ -128,4 +128,47 @@
       (setf (visp:visp-options-res opts) "fhd")
       (setf (visp:visp-options-speed opts) 1.5)
       (setf (visp:visp-options-mute opts) t)
-      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_1.5xSpeed.mp4"))))))
+      (ok (string= (visp:generate-output-filename opts) "test_fhd_noSound_1.5xSpeed.mp4")))))
+
+(deftest generate-output-filename-with-output-option-tests
+  (testing "Custom output filename takes precedence over auto-generation"
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-output opts) "custom.mp4")
+      (ok (string= (visp:generate-output-filename opts) "custom.mp4")))
+    
+    ;; --outputが指定されている場合、他のオプションは無視される
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-output opts) "custom.mp4")
+      (setf (visp:visp-options-res opts) "fhd")
+      (setf (visp:visp-options-mute opts) t)
+      (setf (visp:visp-options-speed opts) 2.0)
+      (ok (string= (visp:generate-output-filename opts) "custom.mp4")))))
+
+(deftest generate-gif-output-filename-with-output-option-tests
+  (testing "GIF output filename with --output option"
+    ;; --outputが指定されていない場合の従来動作
+    (ok (string= (visp:generate-gif-output-filename "test.mp4" nil) "test.gif"))
+    
+    ;; --outputが指定されている場合
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-output opts) "custom.gif")
+      (ok (string= (visp:generate-gif-output-filename "test.mp4" opts) "custom.gif")))
+    
+    ;; --outputが指定されていない場合
+    (let ((opts (visp:make-visp-options)))
+      (ok (string= (visp:generate-gif-output-filename "test.mp4" opts) "test.gif")))))
+
+(deftest generate-merge-output-filename-with-output-option-tests
+  (testing "Merge output filename with --output option"
+    ;; --outputが指定されていない場合の従来動作
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-merge-files opts) '("file1.mp4" "file2.mp4"))
+      (ok (string= (visp:generate-merge-output-filename opts) "file1_merged.mp4")))
+    
+    ;; --outputが指定されている場合
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-merge-files opts) '("file1.mp4" "file2.mp4"))
+      (setf (visp:visp-options-output opts) "custom_merged.mp4")
+      (ok (string= (visp:generate-merge-output-filename opts) "custom_merged.mp4"))))))

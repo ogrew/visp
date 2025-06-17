@@ -41,3 +41,18 @@
       (setf (visp:visp-options-speed opts) nil)
       (visp:validate-speed opts)
       (ok (null (visp:visp-options-speed opts))))))
+
+(deftest validate-output-tests
+  (testing "Validates output option with existing directory"
+    ;; カレントディレクトリは存在するはず
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-output opts) "test_output.mp4")
+      ;; エラーが発生しないことをテスト
+      (visp:validate-output opts)
+      (ok t)))
+  
+  (testing "Handles NIL output (no validation needed)"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-output opts) nil)
+      (visp:validate-output opts)
+      (ok (null (visp:visp-options-output opts))))))

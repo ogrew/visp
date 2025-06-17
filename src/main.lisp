@@ -21,7 +21,7 @@
       ((visp-options-gif opts)
        (let* ((input (visp-options-input opts))
               (fps (get-video-fps input)) 
-              (output (generate-gif-output-filename input))
+              (output (generate-gif-output-filename input opts))
               (cmd (build-gif-cmd opts output fps)))
          (run-cmd cmd output (visp-options-dry-run opts))))
 

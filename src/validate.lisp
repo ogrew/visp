@@ -15,7 +15,7 @@
                 (log-tag "error") ext)
         (uiop:quit 1)))
 
-    ;; 禁止されている他オプションが使われていないかチェック
+    ;; 禁止されている他オプションが使われていないかチェック（--outputと--dry-runは許可）
     (let ((disallowed-options (list
                                 (visp-options-res opts)
                                 (visp-options-codec opts)
@@ -38,7 +38,7 @@
   "Validate options specific to --merge mode."
   (let* ((files (visp-options-merge-files opts)))
 
-    ;; --dry-run だけは併用を許可する。他はすべて禁止。
+    ;; --dry-runと--outputだけは併用を許可する。他はすべて禁止。
     (when (or (visp-options-input opts)
               (visp-options-res opts)
               (visp-options-codec opts)
@@ -281,6 +281,12 @@
       (when (member codec '("prores" "hap") :test #'string=)
         (error "The --mono option is not supported with codec ~A." codec)))))
 
+(defun parse-speed-float (string)
+  "Parse a string as a float for speed validation. Throws an error if not a valid number."
+  (let ((*read-eval* nil))
+    (with-input-from-string (s string)
+      (read s))))
+
 (defun validate-speed (opts)
   "Validate that --speed is a positive number if specified."
   (let ((speed (visp-options-speed opts)))
@@ -295,14 +301,20 @@
         ;; 明示的に数値に変換して再セット
         (setf (visp-options-speed opts) speedf)))))
 
-(defun parse-speed-float (string)
-  "Parse a string as a float for speed validation. Throws an error if not a valid number."
-  (let ((*read-eval* nil))
-    (with-input-from-string (s string)
-      (read s))))
+(defun validate-output (opts)
+  "Validate the --output option: check if parent directory exists for the given path."
+  (let ((output (visp-options-output opts)))
+    (when output
+      ;; 出力ファイルのディレクトリが存在するかチェック
+      (let ((parent-dir (uiop:pathname-directory-pathname (pathname output))))
+        (unless (uiop:directory-exists-p parent-dir)
+          (format t "~a Output directory '~a' does not exist.~%" 
+                  (log-tag "error") (namestring parent-dir))
+          (uiop:quit 1))))))
 
 (defun validate-options (opts)
   (validate-input opts)
+  (validate-output opts)
   (validate-reverse opts)
   (validate-repeat opts)
   (validate-resolution opts)
