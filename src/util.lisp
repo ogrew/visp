@@ -52,63 +52,72 @@ Accepts integers including -1. Returns NIL on malformed input."
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
 
-(defun generate-gif-output-filename (input)
-  "Generate a .gif filename from the input video filename."
-  (let* ((base (file-namestring input))
-         (dot-pos (position #\. base :from-end t))
-         (name (subseq base 0 dot-pos)))
-    (concatenate 'string name ".gif")))
+(defun generate-gif-output-filename (input &optional opts)
+  "Generate a .gif filename from the input video filename, or return custom output if specified."
+  (if (and opts (visp-options-output opts))
+      (visp-options-output opts)
+      (let* ((base (file-namestring input))
+             (dot-pos (position #\. base :from-end t))
+             (name (subseq base 0 dot-pos)))
+        (concatenate 'string name ".gif"))))
 
 (defun generate-merge-output-filename (opts)
-  "Generate output filename for --merge mode, based on the first file in the list."
-  (let* ((files (visp-options-merge-files opts))
-         (head (car files))
-         (base (file-namestring head))
-         (dot-pos (position #\. base :from-end t))
-         (name (subseq base 0 dot-pos)))
-      (concatenate 'string name "_merged.mp4")))
+  "Generate output filename for --merge mode, based on the first file in the list or custom output."
+  (if (visp-options-output opts)
+      (visp-options-output opts)
+      (let* ((files (visp-options-merge-files opts))
+             (head (car files))
+             (base (file-namestring head))
+             (dot-pos (position #\. base :from-end t))
+             (name (subseq base 0 dot-pos)))
+        (concatenate 'string name "_merged.mp4"))))
 
 (defun generate-output-filename (opts &optional ext)
   "Generate output filename based on visp-options and optional ext override."
-  (let* ((input (visp-options-input opts))
-         (base (file-namestring input))
-         (dot-pos (position #\. base :from-end t))
-         (name (subseq base 0 dot-pos))
-         ;; 拡張子は codec-info の ext 優先、なければ元ファイルの拡張子
-         (ext (or ext (subseq base dot-pos)))
-         (res (visp-options-res opts))
-         (res-suffix (if res (format nil "_~a" res) ""))
-         (fps (visp-options-fps opts))
-         (fps-suffix (if fps (format nil "_~afps" fps) ""))
-         (repeat (visp-options-repeat opts))
-         (repeat-suffix (if repeat (format nil "_x~a" repeat) ""))
-         (half (visp-options-half opts))
-         (half-suffix (if half "_Half" ""))
-         (mono (visp-options-mono opts))
-         (mono-suffix (if mono "_Gray" ""))
-         (rev (visp-options-rev opts))
-         (rev-suffix (if rev "_Reverse" ""))
-         (hflip (visp-options-hflip opts))
-         (hflip-suffix (if hflip "_HFlip" ""))
-         (vflip (visp-options-vflip opts))
-         (vflip-suffix (if vflip "_VFlip" ""))
-         (speed (visp-options-speed opts))
-         (speed-suffix (if speed (format nil "_~axSpeed" speed) ""))
-         (mute (visp-options-mute opts))
-         (mute-suffix (if mute "_noSound" "")))
-    (apply #'concatenate 'string 
-      (list name 
-            res-suffix 
-            fps-suffix 
-            mute-suffix 
-            rev-suffix 
-            hflip-suffix 
-            vflip-suffix 
-            speed-suffix 
-            half-suffix 
-            mono-suffix 
-            repeat-suffix 
-            ext))))
+  ;; --outputが指定されていれば、それを返す
+  (let ((output (visp-options-output opts)))
+    (if output
+        output
+        ;; 従来通りの自動生成
+        (let* ((input (visp-options-input opts))
+               (base (file-namestring input))
+               (dot-pos (position #\. base :from-end t))
+               (name (subseq base 0 dot-pos))
+               ;; 拡張子は codec-info の ext 優先、なければ元ファイルの拡張子
+               (ext (or ext (subseq base dot-pos)))
+               (res (visp-options-res opts))
+               (res-suffix (if res (format nil "_~a" res) ""))
+               (fps (visp-options-fps opts))
+               (fps-suffix (if fps (format nil "_~afps" fps) ""))
+               (repeat (visp-options-repeat opts))
+               (repeat-suffix (if repeat (format nil "_x~a" repeat) ""))
+               (half (visp-options-half opts))
+               (half-suffix (if half "_Half" ""))
+               (mono (visp-options-mono opts))
+               (mono-suffix (if mono "_Gray" ""))
+               (rev (visp-options-rev opts))
+               (rev-suffix (if rev "_Reverse" ""))
+               (hflip (visp-options-hflip opts))
+               (hflip-suffix (if hflip "_HFlip" ""))
+               (vflip (visp-options-vflip opts))
+               (vflip-suffix (if vflip "_VFlip" ""))
+               (speed (visp-options-speed opts))
+               (speed-suffix (if speed (format nil "_~axSpeed" speed) ""))
+               (mute (visp-options-mute opts))
+               (mute-suffix (if mute "_noSound" "")))
+          (apply #'concatenate 'string 
+            (list name 
+                  res-suffix 
+                  fps-suffix 
+                  mute-suffix 
+                  rev-suffix 
+                  hflip-suffix 
+                  vflip-suffix 
+                  speed-suffix 
+                  half-suffix 
+                  mono-suffix 
+                  repeat-suffix 
+                  ext))))))
 
 (defun output-path-in-same-directory (input-file output-filename)
   "Return the full path of output file placed in the same directory as input-file."
