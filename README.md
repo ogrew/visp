@@ -90,7 +90,7 @@ Examples:
 | `--reverse` | _(flag)_                                      | Reverse the input video (audio is automatically muted).          |
 | `--mono`    | _(flag)_                                      | Convert video to grayscale (supported only with `h264`/`h265`).  |
 | `--half`    | _(flag)_                                      | Scale input resolution down by half (e.g. 1920×1080 → 960×540).  |
-| `--speed`   | `<factor>`                                    | Change playbook speed (e.g. `2.0` = 2x speed, `0.5` = half speed). |
+| `--speed`   | `<factor>`                                    | Change playback speed (e.g. `2.0` = 2x speed, `0.5` = half speed). |
 | `--dry-run` | _(flag)_                                      | Print the generated `ffmpeg` command without executing it.       |
 | `--help`    | _(flag)_                                      | Show usage information and exit.                                 |
 
