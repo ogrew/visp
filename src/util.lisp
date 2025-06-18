@@ -52,11 +52,12 @@ Accepts integers including -1. Returns NIL on malformed input."
   "Return plist (:encoder \"libx264\" :ext \"mp4\") if key is valid; otherwise NIL."
   (cdr (assoc key +codec-map+ :test #'string-equal)))
 
-(defun generate-gif-output-filename (input &optional opts)
+(defun generate-gif-output-filename (opts)
   "Generate a .gif filename from the input video filename, or return custom output if specified."
-  (if (and opts (visp-options-output opts))
+  (if (visp-options-output opts)
       (visp-options-output opts)
-      (let* ((base (file-namestring input))
+      (let* ((input (visp-options-input opts))
+             (base (file-namestring input))
              (dot-pos (position #\. base :from-end t))
              (name (subseq base 0 dot-pos)))
         (concatenate 'string name ".gif"))))

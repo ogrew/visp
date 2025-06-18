@@ -34,6 +34,7 @@
    ;; util.lisp
    :input-extension
    :parse-float
+   :safe-parse-float
    :parse-frame-rate
    :resolution-from-key
    :parse-dimensions
@@ -86,5 +87,6 @@
    :visp-options-dry-run
    :visp-options-merge-files
    :visp-options-gif
+   :visp-options-output
    :visp-options-batch-files
    ))
