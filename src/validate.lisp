@@ -287,9 +287,14 @@
 
 (defun parse-speed-float (string)
   "Parse a string as a float for speed validation. Throws an error if not a valid number."
-  (let ((*read-eval* nil))
+  (let ((*read-eval* nil)
+        (result nil))
     (with-input-from-string (s string)
-      (read s))))
+      (setf result (read s)))
+    ;; 読み取った結果が数値でない場合はエラー
+    (unless (numberp result)
+      (error "Not a valid number: ~a" string))
+    result))
 
 (defun validate-speed (opts)
   "Validate that --speed is a positive number if specified."
