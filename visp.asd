@@ -23,5 +23,6 @@
                 :components
                 ((:file "test-ffmpeg")
                  (:file "test-util")
-                 (:file "test-util-output"))))
+                 (:file "test-util-output")
+                 (:file "test-validate"))))
   :description "Test suite for visp")

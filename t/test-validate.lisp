@@ -3,7 +3,8 @@
   (:import-from :visp
                 :make-visp-options
                 :parse-speed-float
-                :validate-speed))
+                :validate-speed
+                :validate-gif-mode))
 
 (in-package :visp.test.validate)
 
@@ -56,3 +57,50 @@
       (setf (visp:visp-options-output opts) nil)
       (visp:validate-output opts)
       (ok (null (visp:visp-options-output opts))))))
+
+(deftest validate-gif-mode-tests
+  (testing "Accepts valid video formats"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      ;; エラーが発生しないことをテスト
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mov")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.flv")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.avi")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.webm")
+      (visp:validate-gif-mode opts)
+      (ok t)))
+
+  ;; NOTE: Error case tests have been temporarily removed due to (uiop:quit 1) 
+  ;; incompatibility with test framework. These will be added back when 
+  ;; validation functions are refactored to use exceptions instead of process exit.
+  ;; See CLAUDE.md "テストコード全体の改修とエラーケーステストの追加" for details.
+
+  (testing "Allows --dry-run with --gif"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-dry-run opts) t)
+      ;; エラーが発生しないことをテスト
+      (visp:validate-gif-mode opts)
+      (ok t))))

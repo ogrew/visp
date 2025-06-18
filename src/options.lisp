@@ -79,8 +79,14 @@
                               (incf i))
                     (setf (visp-options-merge-files opts) (nreverse files))))
                  ((string= key "--gif")
-                  (when (< (1+ i) (length args))
-                    (setf (visp-options-gif opts) t)
+                  ;; --inputが既に設定されている場合はエラー
+                  (when (visp-options-input opts)
+                    (format t "~a Do not use --input with --gif. Use: visp --gif <video-file>~%" 
+                            (log-tag "error"))
+                    (uiop:quit 1))
+                  (setf (visp-options-gif opts) t)
+                  (when (and (< (1+ i) (length args))
+                             (not (string-prefix-p "--" (nth (1+ i) args))))
                     (setf (visp-options-input opts) (nth (1+ i) args))
                     (incf i)))
                  (t
