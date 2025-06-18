@@ -149,16 +149,20 @@
 (deftest generate-gif-output-filename-with-output-option-tests
   (testing "GIF output filename with --output option"
     ;; --outputが指定されていない場合の従来動作
-    (ok (string= (visp:generate-gif-output-filename "test.mp4" nil) "test.gif"))
+    (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (ok (string= (visp:generate-gif-output-filename opts) "test.gif")))
     
     ;; --outputが指定されている場合
     (let ((opts (visp:make-visp-options)))
+      (setf (visp:visp-options-input opts) "test.mp4")
       (setf (visp:visp-options-output opts) "custom.gif")
-      (ok (string= (visp:generate-gif-output-filename "test.mp4" opts) "custom.gif")))
+      (ok (string= (visp:generate-gif-output-filename opts) "custom.gif")))
     
     ;; --outputが指定されていない場合
     (let ((opts (visp:make-visp-options)))
-      (ok (string= (visp:generate-gif-output-filename "test.mp4" opts) "test.gif")))))
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (ok (string= (visp:generate-gif-output-filename opts) "test.gif")))))
 
 (deftest generate-merge-output-filename-with-output-option-tests
   (testing "Merge output filename with --output option"
