@@ -99,33 +99,34 @@ Common Lispでは同じパッケージ内で同名関数を再定義すると警
 
 ### 高優先度
 
-#### 出力ファイル名生成関数の引数統一
-現在の出力ファイル名生成関数の引数が不統一になっている問題を修正する：
+#### 出力ファイル名生成関数の引数統一 ✅ **完了**
+出力ファイル名生成関数の引数を統一し、APIの一貫性を向上：
 
-**現在の状況:**
-```lisp
-generate-gif-output-filename (input &optional opts)     ; inputが第一引数
-generate-merge-output-filename (opts)                   ; optsのみ
-generate-output-filename (opts &optional ext)           ; optsが第一引数
-```
+**実施内容:**
+- `generate-gif-output-filename`の引数を`(input &optional opts)`から`(opts)`に変更
+- `main.lisp`のGIFモードでの呼び出し方法を修正
+- 関連するテストケースを更新
+- パッケージエクスポートの追加（`visp-options-output`, `safe-parse-float`）
 
-**目標:**
-```lisp
-generate-gif-output-filename (opts)                     ; optsに統一
-generate-merge-output-filename (opts)                   ; 変更なし
-generate-output-filename (opts &optional ext)           ; 変更なし
-```
+**結果:**
+すべての出力ファイル名生成関数が`opts`を第一引数として受け取るAPIに統一され、
+テストスイートでの検証とバイナリビルドでの動作確認も完了。
 
-**必要な作業:**
-1. `generate-gif-output-filename`の引数を`(opts)`のみに変更
-2. `main.lisp`のGIFモードでの呼び出し方法を修正
-3. 関連するテストケースの更新
-4. 関数の一貫性向上により保守性を改善
+#### GIFモードのオプション制限強化
+GIFモードで`--input`オプションとの組み合わせエラーが適切に処理されていない問題を修正：
+
+**問題:**
+- `visp --input test.mp4 --gif --dry-run`でオプション解析が競合し、入力ファイルが空文字列になる
+- GIFモードは`visp --gif <file>`の構文のみを受け付けるべきだが、`--input`オプションが禁止リストに含まれていない
+
+**解決策:**
+1. `validate-gif-mode`関数の禁止オプションリストに`visp-options-input`を追加
+2. GIFモードでは`--gif <file> [--output <filename>] [--dry-run]`の構文のみを許可
+3. 不正な構文でのエラーメッセージを改善
 
 **影響範囲:**
-- `src/util.lisp`: 関数シグネチャの変更
-- `src/main.lisp`: GIFモード処理の呼び出し修正
-- `t/test-util.lisp`: テストケースの更新
+- `src/validate.lisp`: GIFモードバリデーションの強化
+- `t/test-validate.lisp`: 関連テストケースの追加
 
 #### 関数名重複問題の解決
 `util.lisp`と`validate.lisp`で類似のパース関数が重複している問題を統合する：
