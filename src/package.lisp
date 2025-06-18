@@ -28,7 +28,9 @@
   :validate-codec
   :validate-mono
   :validate-speed
+  :parse-speed-float
   :validate-options
+  :validate-output
   :dispatch-validation
 
    ;; util.lisp

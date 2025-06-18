@@ -3,7 +3,8 @@
   (:import-from :visp
                 :make-visp-options
                 :parse-speed-float
-                :validate-speed))
+                :validate-speed
+                :validate-gif-mode))
 
 (in-package :visp.test.validate)
 
@@ -56,3 +57,80 @@
       (setf (visp:visp-options-output opts) nil)
       (visp:validate-output opts)
       (ok (null (visp:visp-options-output opts))))))
+
+(deftest validate-gif-mode-tests
+  (testing "Accepts valid video formats"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      ;; エラーが発生しないことをテスト
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mov")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.flv")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.avi")
+      (visp:validate-gif-mode opts)
+      (ok t))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.webm")
+      (visp:validate-gif-mode opts)
+      (ok t)))
+
+  (testing "Rejects invalid file formats"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.jpg")
+      (ok (signals (visp:validate-gif-mode opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.txt")
+      (ok (signals (visp:validate-gif-mode opts)))))
+
+  (testing "Rejects other options with --gif"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-output opts) "custom.gif")
+      (ok (signals (visp:validate-gif-mode opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-res opts) "fhd")
+      (ok (signals (visp:validate-gif-mode opts)))))
+
+  (testing "Allows --dry-run with --gif"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-dry-run opts) t)
+      ;; エラーが発生しないことをテスト
+      (visp:validate-gif-mode opts)
+      (ok t)))
+
+  (testing "Rejects missing input file"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) nil)
+      (ok (signals (visp:validate-gif-mode opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "")
+      (ok (signals (visp:validate-gif-mode opts))))))

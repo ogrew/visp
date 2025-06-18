@@ -1,22 +1,25 @@
 (in-package :visp)
 
 (defun validate-gif-mode (opts)
-  "Validate options for GIF mode: --gif requires only input and allows --dry-run."
+  "Validate options for GIF mode: --gif accepts only video files and no other options."
   (let ((input (visp-options-input opts)))
     ;; 入力ファイルの存在チェック
-    (unless input
-      (format t "Error: --gif mode requires an input file.~%")
+    (unless (and input (not (string= input "")))
+      (format t "~a --gif mode requires a video file. Use: visp --gif <video-file>~%"
+              (log-tag "error"))
       (uiop:quit 1))
 
-    ;; 入力拡張子のチェック
+
+    ;; GIFモード対応拡張子チェック（全動画形式対応）
     (let ((ext (input-extension input)))
       (unless (member ext +allowed-input-extensions+ :test #'string-equal)
-        (format t "~a visp does not support the input file extension '~a' in GIF mode.~%"
+        (format t "~a --gif mode supports video files (.mp4, .mov, .flv, .avi, .webm), but got '~a'.~%"
                 (log-tag "error") ext)
         (uiop:quit 1)))
 
-    ;; 禁止されている他オプションが使われていないかチェック（--outputと--dry-runは許可）
+    ;; すべての他オプションを禁止（--dry-runのみ特別に許可）
     (let ((disallowed-options (list
+                                (visp-options-output opts)   ; --outputオプション禁止  
                                 (visp-options-res opts)
                                 (visp-options-codec opts)
                                 (visp-options-scale opts)
@@ -31,7 +34,8 @@
                                 (visp-options-speed opts)
                                 (visp-options-merge-files opts))))
       (when (some #'identity disallowed-options)
-        (format t "~a --gif cannot be combined with other options.~%" (log-tag "error"))
+        (format t "~a --gif mode does not accept any other options. Use: visp --gif <video-file> [--dry-run]~%" 
+                (log-tag "error"))
         (uiop:quit 1)))))
 
 (defun validate-merge-files (opts)
