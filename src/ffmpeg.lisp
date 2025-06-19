@@ -1,6 +1,39 @@
 (in-package :visp)
 
+(defun validate-output-path (output)
+  "Validate output path before ffmpeg execution"
+  (let* ((output-pathname (pathname output))
+         (output-dir (uiop:pathname-directory-pathname output-pathname)))
+    ;; ディレクトリ存在確認
+    ;; 相対パスの場合はカレントディレクトリからの解決を行う
+    (unless (uiop:directory-exists-p output-dir)
+      (format t "~a Output directory does not exist: ~a~%" 
+              (log-tag "error") (namestring output-dir))
+      (uiop:quit 1))
+    
+    ;; 出力ファイル名の基本チェック
+    (let ((filename (file-namestring output-pathname)))
+      (when (string= filename "")
+        (format t "~a Invalid output filename: ~a~%" 
+                (log-tag "error") output)
+        (uiop:quit 1)))))
+
+(defun cleanup-partial-output (output)
+  "Clean up partially created output file if it exists and is empty/corrupted"
+  (when (probe-file output)
+    (let ((file-size (with-open-file (stream output :direction :input 
+                                             :if-does-not-exist nil)
+                       (when stream (file-length stream)))))
+      ;; 0バイトまたは非常に小さいファイル（ヘッダーのみ等）は削除
+      (when (and file-size (< file-size 1024))
+        (delete-file output)
+        (format t "~a Cleaned up incomplete output file: ~a~%" 
+                (log-tag "info") output)))))
+
 (defun run-cmd (cmd output dry-run)
+  ;; Phase 1: 事前検証
+  (validate-output-path output)
+  
   (when (probe-file output)
     (format t "~a Output file '~a' already exists. It will be overwritten.~%"
             (log-tag "warn") output))
@@ -11,7 +44,13 @@
         (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
       (progn
         (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
-        (uiop:run-program cmd :output t :error-output t))))
+        ;; Phase 1: 実行前後でのクリーンアップ対応準備
+        (handler-case
+            (uiop:run-program cmd :output t :error-output t)
+          (error (e)
+            ;; 簡易的なエラー処理（Phase 2で本格化）
+            (cleanup-partial-output output)
+            (error e))))))
 
 (defun build-gif-cmd (opts output fps)
   "Construct the ffmpeg command list for GIF mode using input filename and target fps."

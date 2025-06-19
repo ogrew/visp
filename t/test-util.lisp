@@ -19,7 +19,7 @@
 (deftest parse-frame-rate-tests
   (testing "Parses valid frame rate strings"
     (ok (= (visp:parse-frame-rate "30") 30.0))
-    (ok (= (visp:parse-frame-rate "30000/1001") (/ 30000.0 1001))))
+    (ok (= (visp:parse-frame-rate "30000/1001") (/ 30000 1001))))
 
   (testing "Handles invalid input gracefully"
     (ok (null (visp:parse-frame-rate "not-a-number")))
