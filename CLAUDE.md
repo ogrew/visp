@@ -85,6 +85,37 @@ ros run --eval "(push #p\"./\" asdf:*central-registry*)" \
 
 ## 開発ガイドライン
 
+### ブランチ運用とワークフロー
+
+#### mainブランチ保護
+- **mainブランチは保護されており、直接コミットできません**
+- すべての作業は専用のfeatureブランチで行う必要があります
+- 変更はPull Request経由でのみmainにマージ可能です
+
+#### 推奨ワークフロー
+```bash
+# 1. mainから最新を取得
+git checkout main && git pull origin main
+
+# 2. 作業用ブランチを作成（命名規則例）
+git checkout -b feature/新機能名
+git checkout -b fix/バグ修正名  
+git checkout -b docs/ドキュメント更新名
+git checkout -b refactor/リファクタリング内容
+
+# 3. 作業・コミット・プッシュ
+git add . && git commit -m "適切なコミットメッセージ"
+git push -u origin ブランチ名
+
+# 4. GitHub でPull Request作成
+gh pr create --title "タイトル" --body "説明"
+```
+
+#### 段階的開発の原則
+- **小さな変更を積み重ねる**: 大きな変更は複数のPRに分割
+- **各PR毎にテスト実行**: `make test`で既存機能への影響を確認
+- **バイナリビルド確認**: `ros build visp.ros`で実行可能性を検証
+
 ### 関数名の重複チェック
 
 新しい関数を定義する際は、既存の関数名との重複を避けるため以下を確認してください：
