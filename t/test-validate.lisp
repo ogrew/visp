@@ -4,8 +4,15 @@
                 :make-visp-options
                 :parse-number
                 :validate-speed
+                :validate-input
+                :validate-reverse
+                :validate-repeat
+                :validate-resolution
+                :validate-half
+                :validate-fps
                 :validate-gif-mode
-                :visp-option-error))
+                :visp-option-error
+                :visp-file-error))
 
 (in-package :visp.test.validate)
 
@@ -122,3 +129,73 @@
       ;; エラーが発生しないことをテスト
       (visp:validate-gif-mode opts)
       (ok t))))
+
+(deftest validate-input-error-tests
+  (testing "Error when no input provided"
+    (let ((opts (make-visp-options)))
+      ;; input is nil by default
+      (ok (signals visp-option-error (validate-input opts)))))
+  
+  (testing "Error when input file does not exist"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-input opts) "/nonexistent/file.mp4")
+      (ok (signals visp-file-error (validate-input opts)))))
+  
+  (testing "Error when input directory does not exist"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-input opts) "/nonexistent/directory/")
+      (ok (signals visp-file-error (validate-input opts))))))
+
+(deftest validate-reverse-error-tests
+  (testing "Error when --reverse and --loop used together"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-rev opts) t)
+      (setf (visp:visp-options-repeat opts) 2)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (ok (signals visp-option-error (validate-reverse opts)))))
+  
+  (testing "Error when --reverse used with unsupported extension"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-rev opts) t)
+      (setf (visp:visp-options-input opts) "test.avi")
+      (ok (signals visp-option-error (validate-reverse opts))))))
+
+(deftest validate-repeat-error-tests
+  (testing "Error when --loop is not a positive integer"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-repeat opts) "invalid")
+      (ok (signals visp-option-error (validate-repeat opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-repeat opts) "0")
+      (ok (signals visp-option-error (validate-repeat opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-repeat opts) "-1")
+      (ok (signals visp-option-error (validate-repeat opts))))))
+
+(deftest validate-resolution-error-tests
+  (testing "Error when --res and --half used together"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-res opts) "fhd")
+      (setf (visp:visp-options-half opts) t)
+      (ok (signals visp-option-error (validate-resolution opts)))))
+  
+  (testing "Error when --res has unsupported value"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-res opts) "unsupported-resolution")
+      (ok (signals visp-option-error (validate-resolution opts))))))
+
+(deftest validate-fps-error-tests
+  (testing "Error when --fps is not a positive integer"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-fps opts) "invalid")
+      (ok (signals visp-option-error (validate-fps opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-fps opts) "0")
+      (ok (signals visp-option-error (validate-fps opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-fps opts) "-30")
+      (ok (signals visp-option-error (validate-fps opts))))))

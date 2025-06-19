@@ -198,9 +198,9 @@
       (let ((repeati (parse-integer repeat :junk-allowed t)))
         ;; stream_loopの仕様上(repeat >= 1)がマスト
         (unless (and (integerp repeati) (>= repeati 1))
-          (format t "~a --loop must be an integer >= 1, but got '~a'.~%"
-                  (log-tag "error") repeat)
-          (uiop:quit 1))
+          (error-option "--loop must be an integer >= 1"
+                        :option-name "loop"
+                        :context repeat))
         ;; repeat は数値に変換して保存
         (setf (visp-options-repeat opts) repeati)))))
 
@@ -212,8 +212,8 @@
 
     ;; --res と --half の併用は禁止
     (when (and res half)
-      (format t "~a --res and --half cannot be used together.~%" (log-tag "error"))
-      (uiop:quit 1))
+      (error-option "--res and --half cannot be used together"
+                    :option-name "res"))
 
     ;; --res が指定されていれば有効な解像度か確認
     (when res
@@ -222,10 +222,9 @@
                        (parse-dimensions res))))
         (if dims
             (setf (visp-options-scale opts) dims)
-            (progn
-              (format t "~a visp does not support the resolution '~a'.~%"
-                      (log-tag "error") res)
-              (uiop:quit 1)))))))
+            (error-option "Unsupported resolution"
+                          :option-name "res"
+                          :context res))))))
 
 (defun validate-half (opts)
   "If --half is specified, get original resolution using ffprobe and set scaled dimensions."
@@ -235,8 +234,9 @@
           (destructuring-bind (w . h) dims
             (setf (visp-options-scale opts)
                   (cons (floor w 2) (floor h 2))))
-          (format t "~a Could not determine resolution for --half. Original size will be used.~%"
-                  (log-tag "warn"))))))
+          (error-option "Could not determine resolution for --half"
+                        :option-name "half"
+                        :context (visp-options-input opts))))))
 
 (defun validate-fps (opts)
   "Validate that --fps is a positive integer if specified."
@@ -245,9 +245,9 @@
       (let ((fpsi (parse-integer fps :junk-allowed t)))
         ;; fpsは必ず0より大きい整数
         (unless (and (integerp fpsi) (> fpsi 0))
-          (format t "~a --fps must be a positive integer, but got '~a'.~%" 
-                  (log-tag "error") fps)
-          (uiop:quit 1))
+          (error-option "--fps must be a positive integer"
+                        :option-name "fps"
+                        :context fps))
         ;; 明示的に整数に変換して再セット
         (setf (visp-options-fps opts) fpsi)))))
 
