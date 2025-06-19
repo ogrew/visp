@@ -25,9 +25,9 @@
          (parts (uiop:split-string output :separator "/")))
     (cond
       ((= (length parts) 2)
-       (/ (safe-parse-float (first parts)) (safe-parse-float (second parts))))
+       (/ (parse-number-or-exit (first parts) "fps") (parse-number-or-exit (second parts) "fps")))
       ((= (length parts) 1)
-       (safe-parse-float (first parts)))
+       (parse-number-or-exit (first parts) "fps"))
       (t
        (format t "~a Failed to extract FPS from input: ~a~%" (log-tag "error") output)
        (uiop:quit 1)))))
@@ -65,7 +65,7 @@
       `(:width ,(when width (parse-integer (cdr width)))
         :height ,(when height (parse-integer (cdr height)))
         :fps ,(when rate (parse-frame-rate (cdr rate)))
-        :duration ,(when duration (parse-float (cdr duration)))
+        :duration ,(when duration (parse-number (cdr duration)))
         :has-audio ,has-audio
         :audio-codec ,(if has-audio audio-codec nil)
         :video-codec ,(when codec (cdr codec))))))

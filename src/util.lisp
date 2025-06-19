@@ -1,28 +1,28 @@
 (in-package :visp)
 
-(defun parse-float (str)
-  "Parse a string as a float. Returns NIL if not parsable."
-  (handler-case
-      (let ((val (read-from-string str)))
-        (if (floatp val)
-            val
-            (coerce val 'float))) ; int → float に変換
-    (error () nil)))
+(defun parse-number (str)
+  "Parse string to number. Returns nil on failure. Secure version with *read-eval* disabled."
+  (let ((*read-eval* nil))
+    (handler-case
+        (let ((result (with-input-from-string (s str) (read s))))
+          (if (numberp result) result nil))
+      (error () nil))))
 
-(defun safe-parse-float (str)
-  (let ((val (parse-float str)))
-    (if val
-        val
-        (progn
-          (format t "~a Invalid float value: ~a~%" (log-tag "error") str)
-          (uiop:quit 1)))))
+(defun parse-number-or-exit (str &optional (context "number"))
+  "Parse string to number. Exit with error message on failure."
+  (let ((result (parse-number str)))
+    (unless result
+      (format t "~a Invalid ~a value: ~a~%" (log-tag "error") context str)
+      (uiop:quit 1))
+    result))
+
 
 (defun parse-frame-rate (rate)
   (handler-case
       (let ((parts (uiop:split-string rate :separator "/")))
         (if (= (length parts) 2)
-            (/ (parse-float (first parts)) (parse-float (second parts)))
-            (parse-float rate)))
+            (/ (parse-number (first parts)) (parse-number (second parts)))
+            (parse-number rate)))
     (error () nil)))
 
 (defun input-extension (filename)

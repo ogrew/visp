@@ -28,15 +28,14 @@
   :validate-codec
   :validate-mono
   :validate-speed
-  :parse-speed-float
   :validate-options
   :validate-output
   :dispatch-validation
 
    ;; util.lisp
    :input-extension
-   :parse-float
-   :safe-parse-float
+   :parse-number
+   :parse-number-or-exit
    :parse-frame-rate
    :resolution-from-key
    :parse-dimensions
