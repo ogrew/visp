@@ -285,23 +285,12 @@
       (when (member codec '("prores" "hap") :test #'string=)
         (error "The --mono option is not supported with codec ~A." codec)))))
 
-(defun parse-speed-float (string)
-  "Parse a string as a float for speed validation. Throws an error if not a valid number."
-  (let ((*read-eval* nil)
-        (result nil))
-    (with-input-from-string (s string)
-      (setf result (read s)))
-    ;; 読み取った結果が数値でない場合はエラー
-    (unless (numberp result)
-      (error "Not a valid number: ~a" string))
-    result))
 
 (defun validate-speed (opts)
   "Validate that --speed is a positive number if specified."
   (let ((speed (visp-options-speed opts)))
     (when speed
-      (let ((speedf (handler-case (parse-speed-float speed)
-                      (error () nil))))
+      (let ((speedf (parse-number speed)))
         ;; speedは必ず0より大きい数値
         (unless (and (numberp speedf) (> speedf 0))
           (format t "~a --speed must be a positive number, but got '~a'.~%" 
