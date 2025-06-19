@@ -116,10 +116,35 @@
       (visp:validate-gif-mode opts)
       (ok t)))
 
-  ;; NOTE: Error case tests have been temporarily removed due to (uiop:quit 1) 
-  ;; incompatibility with test framework. These will be added back when 
-  ;; validation functions are refactored to use exceptions instead of process exit.
-  ;; See CLAUDE.md "テストコード全体の改修とエラーケーステストの追加" for details.
+  (testing "Error when no input provided in GIF mode"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      ;; input is nil by default
+      (ok (signals visp-option-error (validate-gif-mode opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "")
+      (ok (signals visp-option-error (validate-gif-mode opts)))))
+  
+  (testing "Error when unsupported file format in GIF mode"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.txt")
+      (ok (signals visp-file-error (validate-gif-mode opts)))))
+  
+  (testing "Error when --gif used with other options"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-res opts) "hd")
+      (ok (signals visp-option-error (validate-gif-mode opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-gif opts) t)
+      (setf (visp:visp-options-input opts) "test.mp4")
+      (setf (visp:visp-options-codec opts) "h264")
+      (ok (signals visp-option-error (validate-gif-mode opts)))))
 
   (testing "Allows --dry-run with --gif"
     (let ((opts (make-visp-options)))
@@ -199,3 +224,27 @@
     (let ((opts (make-visp-options)))
       (setf (visp:visp-options-fps opts) "-30")
       (ok (signals visp-option-error (validate-fps opts))))))
+
+(deftest validate-output-error-tests
+  (testing "Error when output directory does not exist"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-output opts) "/nonexistent/directory/output.mp4")
+      (ok (signals visp-file-error (validate-output opts))))))
+
+(deftest validate-codec-error-tests
+  (testing "Error when unsupported codec specified"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-codec opts) "unsupported-codec")
+      (ok (signals visp-option-error (validate-codec opts))))))
+
+(deftest validate-mono-error-tests
+  (testing "Error when --mono used with unsupported codecs"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-mono opts) t)
+      (setf (visp:visp-options-codec opts) "prores")
+      (ok (signals visp-option-error (validate-mono opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-mono opts) t)
+      (setf (visp:visp-options-codec opts) "hap")
+      (ok (signals visp-option-error (validate-mono opts))))))

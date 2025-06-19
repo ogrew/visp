@@ -5,17 +5,15 @@
   (let ((input (visp-options-input opts)))
     ;; 入力ファイルの存在チェック
     (unless (and input (not (string= input "")))
-      (format t "~a --gif mode requires a video file. Use: visp --gif <video-file>~%"
-              (log-tag "error"))
-      (uiop:quit 1))
-
+      (error-option "--gif mode requires a video file. Use: visp --gif <video-file>"
+                    :option-name "gif"))
 
     ;; GIFモード対応拡張子チェック（全動画形式対応）
     (let ((ext (input-extension input)))
       (unless (member ext +allowed-input-extensions+ :test #'string-equal)
-        (format t "~a --gif mode supports video files (.mp4, .mov, .flv, .avi, .webm), but got '~a'.~%"
-                (log-tag "error") ext)
-        (uiop:quit 1)))
+        (error-file "--gif mode supports video files (.mp4, .mov, .flv, .avi, .webm)"
+                    :file-path input
+                    :context ext)))
 
     ;; すべての他オプションを禁止（--dry-runのみ特別に許可）
     (let ((disallowed-options (list
@@ -34,9 +32,8 @@
                                 (visp-options-speed opts)
                                 (visp-options-merge-files opts))))
       (when (some #'identity disallowed-options)
-        (format t "~a --gif mode does not accept any other options. Use: visp --gif <video-file> [--dry-run]~%" 
-                (log-tag "error"))
-        (uiop:quit 1)))))
+        (error-option "--gif mode does not accept any other options. Use: visp --gif <video-file> [--dry-run]"
+                      :option-name "gif")))))
 
 (defun validate-merge-files (opts)
   "Validate options specific to --merge mode."
@@ -55,25 +52,27 @@
               (visp-options-hflip opts)
               (visp-options-vflip opts)
               (visp-options-speed opts))
-      (format t "~a --merge cannot be combined with other options.~%" (log-tag "error"))
-      (uiop:quit 1))
+      (error-option "--merge cannot be combined with other options"
+                    :option-name "merge"))
 
     ;; ファイル数チェック
     (unless (and files (>= (length files) 2))
-      (format t "~a At least two .mp4 files must be specified for --merge.~%" (log-tag "error"))
-      (uiop:quit 1))
+      (error-option "At least two .mp4 files must be specified for --merge"
+                    :option-name "merge"
+                    :context (if files (format nil "~a file(s) provided" (length files)) "no files")))
 
     ;; 拡張子チェック
     (dolist (file files)
       (unless (string-equal (input-extension file) ".mp4")
-        (format t "~a Only .mp4 files are supported for --merge (got: ~a).~%" (log-tag "error") file)
-        (uiop:quit 1)))
+        (error-file "Only .mp4 files are supported for --merge"
+                    :file-path file
+                    :context (input-extension file))))
 
     ;; ファイル存在確認
     (dolist (file files)
       (unless (probe-file file)
-        (format t "~a Input file '~a' does not exist.~%" (log-tag "error") file)
-        (uiop:quit 1)))
+        (error-file "Input file does not exist"
+                    :file-path file)))
 
     ;; 動画情報取得
     (let* ((infos (mapcar #'get-video-info files)))
@@ -83,16 +82,15 @@
         (let ((file (car pair))
               (info (cdr pair)))
           (unless (and (getf info :fps) (getf info :width) (getf info :height))
-            (format t "~a Failed to extract fps/width/height from file: ~a~%" (log-tag "error") file)
-            (format t "~a This file may be corrupted or not a valid video.~%" (log-tag "error"))
-            (uiop:quit 1))))
+            (error-file "Failed to extract fps/width/height from file. This file may be corrupted or not a valid video"
+                        :file-path file))))
 
       ;; 音声混在チェック
       (let ((has-audio-list (mapcar (lambda (info) (getf info :has-audio)) infos)))
         (unless (or (every #'identity has-audio-list)
                     (every #'not has-audio-list))
-          (format t "~a --merge does not support mixing audio and non-audio files.~%" (log-tag "error"))
-          (uiop:quit 1)))
+          (error-option "--merge does not support mixing audio and non-audio files"
+                        :option-name "merge")))
 
       ;; fps混在チェック（warn）
       (let ((fps-list (remove-duplicates (mapcar (lambda (info) (getf info :fps)) infos)
@@ -258,16 +256,15 @@
 
     ;; 指定された codec が visp の対応リストにない場合
     (when (and key (not codec-info))
-      (format t "~a visp does not support the codec '~a'.~%" 
-              (log-tag "error") key)
-      (uiop:quit 1))
+      (error-option "visp does not support this codec"
+                    :option-name "codec"
+                    :context key))
 
     ;; codec はあるが、システムに encoder が存在しない場合
     (when (and codec-info
                (not (encoder-available-p (getf codec-info :encoder))))
-      (format t "~a ffmpeg on this system does not support the encoder '~a'.~%"
-              (log-tag "error") (getf codec-info :encoder))
-      (uiop:quit 1))
+      (error-ffmpeg "ffmpeg on this system does not support this encoder"
+                    :context (getf codec-info :encoder)))
 
     ;; hapとproresはpix_fmtを指定しないといけない（そしてそれは固定値）
     (when (getf codec-info :pix_fmt)
@@ -283,7 +280,9 @@
   (when (visp-options-mono opts)
     (let ((codec (visp-options-codec opts)))
       (when (member codec '("prores" "hap") :test #'string=)
-        (error "The --mono option is not supported with codec ~A." codec)))))
+        (error-option "The --mono option is not supported with this codec"
+                      :option-name "mono"
+                      :context codec)))))
 
 
 (defun validate-speed (opts)
@@ -306,9 +305,9 @@
       ;; 出力ファイルのディレクトリが存在するかチェック
       (let ((parent-dir (uiop:pathname-directory-pathname (pathname output))))
         (unless (uiop:directory-exists-p parent-dir)
-          (format t "~a Output directory '~a' does not exist.~%" 
-                  (log-tag "error") (namestring parent-dir))
-          (uiop:quit 1))))))
+          (error-file "Output directory does not exist"
+                      :file-path (namestring parent-dir)
+                      :context output))))))
 
 (defun validate-options (opts)
   (validate-input opts)
