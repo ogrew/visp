@@ -4,7 +4,8 @@
                 :make-visp-options
                 :parse-number
                 :validate-speed
-                :validate-gif-mode))
+                :validate-gif-mode
+                :visp-option-error))
 
 (in-package :visp.test.validate)
 
@@ -41,7 +42,24 @@
     (let ((opts (make-visp-options)))
       (setf (visp:visp-options-speed opts) nil)
       (visp:validate-speed opts)
-      (ok (null (visp:visp-options-speed opts))))))
+      (ok (null (visp:visp-options-speed opts)))))
+
+  (testing "Throws visp-option-error for invalid speed values"
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-speed opts) "invalid")
+      (ok (signals visp-option-error (validate-speed opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-speed opts) "-1.5")
+      (ok (signals visp-option-error (validate-speed opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-speed opts) "0")
+      (ok (signals visp-option-error (validate-speed opts))))
+    
+    (let ((opts (make-visp-options)))
+      (setf (visp:visp-options-speed opts) "abc")
+      (ok (signals visp-option-error (validate-speed opts)))))))
 
 (deftest validate-output-tests
   (testing "Validates output option with existing directory"

@@ -16,6 +16,23 @@
    ;; help.lisp
    :print-help
 
+  ;; exceptions.lisp
+  :visp-error
+  :visp-error-message
+  :visp-error-context
+  :visp-validation-error
+  :visp-option-error
+  :visp-option-error-option-name
+  :visp-file-error
+  :visp-file-error-file-path
+  :visp-ffmpeg-error
+  :visp-ffmpeg-error-command
+  :visp-ffmpeg-error-exit-code
+  :error-option
+  :error-file
+  :error-validation
+  :error-ffmpeg
+
   ;; validate.lisp
   :validate-merge-files
   :validate-gif-mode

@@ -293,9 +293,9 @@
       (let ((speedf (parse-number speed)))
         ;; speedは必ず0より大きい数値
         (unless (and (numberp speedf) (> speedf 0))
-          (format t "~a --speed must be a positive number, but got '~a'.~%" 
-                  (log-tag "error") speed)
-          (uiop:quit 1))
+          (error-option "--speed must be a positive number"
+                        :option-name "speed"
+                        :context speed))
         ;; 明示的に数値に変換して再セット
         (setf (visp-options-speed opts) speedf)))))
 

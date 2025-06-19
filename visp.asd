@@ -10,6 +10,7 @@
                   (:file "const")
                   (:file "log")
                   (:file "help")
+                  (:file "exceptions")
                   (:file "options")
                   (:file "util")
                   (:file "video")
@@ -21,7 +22,8 @@
   :depends-on (:visp :rove)
   :components ((:module "t"
                 :components
-                ((:file "test-ffmpeg")
+                ((:file "test-exceptions")
+                 (:file "test-ffmpeg")
                  (:file "test-util")
                  (:file "test-util-output")
                  (:file "test-validate"))))
