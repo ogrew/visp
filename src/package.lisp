@@ -63,6 +63,8 @@
    :build-cmd
    :encoder-available-p
    :ffmpeg-available-p
+   :validate-output-path
+   :cleanup-partial-output
 
    ;; log.lisp
    :log-tag
