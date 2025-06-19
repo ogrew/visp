@@ -119,16 +119,17 @@
   (let ((input (visp-options-input opts)))
     ;; 入力の有無は必須
     (unless input
-      (format t "Usage: visp --input <filename or directory> [--res 4k] [--mute] ...~%")
-      (uiop:quit 1))
+      (error-option "Input file or directory is required"
+                    :option-name "input"
+                    :context "Usage: visp --input <filename or directory> [--res 4k] [--mute] ..."))
 
     ;; ディレクトリ指定っぽい場合
     (if (uiop:directory-pathname-p input)
         (progn
           ;; ディレクトリが存在するか
           (unless (uiop:directory-exists-p input)
-            (format t "~a Directory '~a' does not exist.~%" (log-tag "error") input)
-            (uiop:quit 1))
+            (error-file "Directory does not exist"
+                        :file-path input))
 
           ;; 対象ファイルの取得
           (let ((files (remove-if-not
@@ -136,8 +137,8 @@
                              (member (input-extension p) +allowed-input-extensions+ :test #'string-equal))
                          (uiop:directory-files input))))
             (when (null files)
-              (format t "~a No valid video files found in directory '~a'.~%" (log-tag "error") input)
-              (uiop:quit 1))
+              (error-file "No valid video files found in directory"
+                          :file-path input))
 
             ;; batch-files にファイル名 (string 型) を格納
             (setf (visp-options-batch-files opts) (mapcar #'namestring files))
@@ -148,15 +149,15 @@
         (progn
           ;; ファイル存在チェック
           (unless (probe-file input)
-            (format t "~a Input file '~a' does not exist.~%" (log-tag "error") input)
-            (uiop:quit 1))
+            (error-file "Input file does not exist"
+                        :file-path input))
 
           ;; 拡張子チェック
           (let ((ext (input-extension input)))
             (unless (member ext +allowed-input-extensions+ :test #'string-equal)
-              (format t "~a visp does not support the input file extension '~a'.~%"
-                      (log-tag "error") ext)
-              (uiop:quit 1)))
+              (error-file "Unsupported input file extension"
+                          :file-path input
+                          :context ext)))
 
             ;; 動画情報の表示
             (print-video-info (get-video-info input))))))
@@ -170,16 +171,15 @@
 
     ;; --reverse と --loop は併用不可
     (when (and rev repeat)
-      (format t "~a --loop and --reverse options cannot be used together.~%"
-              (log-tag "error"))
-      (uiop:quit 1))
+      (error-option "--loop and --reverse options cannot be used together"
+                    :option-name "reverse"))
 
     ;; --reverse がサポートする拡張子は限定
     (when rev
       (unless (member ext '(".mp4" ".mov") :test #'string-equal)
-        (format t "~a --reverse option only supports .mov or .mp4 extensions.~%"
-                (log-tag "error"))
-        (uiop:quit 1))
+        (error-option "--reverse option only supports .mov or .mp4 extensions"
+                      :option-name "reverse"
+                      :context ext))
 
       ;; メモリ使用に関する警告
       (format t "~a --reverse may consume a large amount of memory. Consider using small input files.~%"
