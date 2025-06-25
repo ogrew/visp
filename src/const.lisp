@@ -36,6 +36,6 @@
 (defparameter +gif-fps-divider+ 2.0
   "Divider for GIF frame rate (output fps = source fps / divider)")
 
-(defparameter +min-file-size+ 1024
+(defparameter +min-file-size+ 4096
   "Minimum file size in bytes to consider a file valid (not corrupt/incomplete)")
 
