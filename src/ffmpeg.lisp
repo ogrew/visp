@@ -24,7 +24,7 @@
                                              :if-does-not-exist nil)
                        (when stream (file-length stream)))))
       ;; Delete empty or very small files (header-only, etc.)
-      (when (and file-size (< file-size 1024))
+      (when (and file-size (< file-size +min-file-size+))
         (delete-file output)
         (format t "~a Cleaned up incomplete output file: ~a~%" 
                 (log-tag "info") output)))))
@@ -55,7 +55,7 @@
   "Construct the ffmpeg command list for GIF mode using input filename and target fps."
   (let* ((input (visp-options-input opts))
          (cmd (list "ffmpeg" "-i" input))
-         (half-fps (/ fps 2.0))
+         (half-fps (/ fps +gif-fps-divider+))
          (scale-str (format nil "scale=~a" +gif-scale+))
          (fps-str (format nil "fps=~2,2f" half-fps))
          (filter-complex
