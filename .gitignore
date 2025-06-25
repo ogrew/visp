@@ -24,6 +24,10 @@
 *.zip
 
 visp
+visp-macos-arm64
+
+# Release files
+CHANGELOG.md
 
 # Ignore ASDF index
 system-index.txt
