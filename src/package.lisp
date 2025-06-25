@@ -9,6 +9,8 @@
    :+pixfmt-name-map+
    :+allowed-input-extensions+
    +gif-scale+
+   +gif-fps-divider+
+   +min-file-size+
 
    ;; main.lisp
    :main
