@@ -26,4 +26,10 @@
 visp
 
 # Ignore ASDF index
-system-index.txt.claude/settings.local.json
+system-index.txt
+
+# Claude Code settings
+.claude/
+
+# Editor settings
+.vscode/
