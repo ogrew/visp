@@ -5,13 +5,13 @@
   (format t "~%visp - minimal ffmpeg wrapper written in Common Lisp~%~%")
   (format t "=================================================~%")
 
-  ;; Usageセクション
+  ;; Usage section
   (format t "Usage:~%")
   (format t "  visp --input <file> [options]    ;; Normal mode~%")
   (format t "  visp --merge <file1> <file2> ... ;; Merge multiple mp4 files into one~%")
   (format t "  visp --gif <file>                ;; Convert a single video to GIF~%~%")
 
-  ;; Normal mode options
+  ;; Options for normal mode
   (format t "Normal mode options:~%")
   (format t "  --input <file>        Input video file or directory (required)~%")
   (format t "                        - If a directory is specified, all video files in it will be processed in batch.~%")
@@ -32,7 +32,7 @@
   (format t "  --dry-run             Show ffmpeg command without executing~%")
   (format t "  --help                Show this help message~%~%")
 
-  ;; Merge mode explanation
+  ;; Merge mode details
   (format t "Merge mode (exclusive):~%")
   (format t "  --merge <file1> <file2> ...~%")
   (format t "    Merge multiple .mp4 videos into one output file.~%")
@@ -44,7 +44,7 @@
   (format t "    - Other options cannot be combined with --merge (except --output and --dry-run)~%")
   (format t "    - However, --dry-run can be combined to preview the ffmpeg command~%~%")
 
-  ;; GIF mode explanation
+  ;; GIF mode details
   (format t "GIF mode (exclusive):~%")
   (format t "  --gif <file>~%")
   (format t "    Convert video to GIF animation.~%")

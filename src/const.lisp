@@ -25,7 +25,7 @@
     ("yuv444p10le" . "ProRes 4444")
     ("yuva420p"    . "HAP Alpha")
     ("yuv420p"     . "H.264 Default")
-    ;; 必要に応じて拡張
+    ;; Extend as needed
     ))
 
 (defparameter +allowed-input-extensions+
@@ -33,6 +33,3 @@
 
 (defparameter +gif-scale+ "640:-1")
 
-(defparameter +flip-filters+
-  '(("hflip" . "hflip")
-    ("vflip" . "vflip")))

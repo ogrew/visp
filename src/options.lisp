@@ -9,17 +9,17 @@
   scale
   fps
   repeat
-  half      ;boolean
-  rev       ;boolean
-  mute      ;boolean
-  mono      ;boolean
-  hflip     ;boolean
-  vflip     ;boolean
-  speed     ;float
-  dry-run   ;boolean
+  half
+  rev
+  mute
+  mono
+  hflip
+  vflip
+  speed
+  dry-run
   merge-files
   batch-files
-  gif       ;boolean
+  gif
 )
 
 (defun parse-args-to-options (args)
@@ -79,7 +79,7 @@
                               (incf i))
                     (setf (visp-options-merge-files opts) (nreverse files))))
                  ((string= key "--gif")
-                  ;; --inputが既に設定されている場合はエラー
+                  ;; Error if --input already set
                   (when (visp-options-input opts)
                     (format t "~a Do not use --input with --gif. Use: visp --gif <video-file>~%" 
                             (log-tag "error"))
