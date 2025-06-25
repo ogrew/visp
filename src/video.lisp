@@ -52,7 +52,7 @@
          (rate (assoc "r_frame_rate" info :test #'string=))
          (duration (assoc "duration" info :test #'string=)))
 
-    ;; 音声情報取得
+    ;; Get audio information
     (let* ((audio-cmd (list "ffprobe" "-v" "error"
                             "-select_streams" "a"
                             "-show_entries" "stream=codec_name"
@@ -60,7 +60,7 @@
                             input))
            (audio-codec (string-trim '(#\Newline)
                                      (uiop:run-program audio-cmd :output :string)))
-           (has-audio (not (string= audio-codec "")))) ; 空なら音声なし
+           (has-audio (not (string= audio-codec "")))) ; Empty string means no audio
       
       `(:width ,(when width (parse-integer (cdr width)))
         :height ,(when height (parse-integer (cdr height)))

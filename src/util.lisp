@@ -75,16 +75,16 @@ Accepts integers including -1. Returns NIL on malformed input."
 
 (defun generate-output-filename (opts &optional ext)
   "Generate output filename based on visp-options and optional ext override."
-  ;; --outputが指定されていれば、それを返す
+  ;; Return custom output filename if specified
   (let ((output (visp-options-output opts)))
     (if output
         output
-        ;; 従来通りの自動生成
+        ;; Auto-generate filename based on options
         (let* ((input (visp-options-input opts))
                (base (file-namestring input))
                (dot-pos (position #\. base :from-end t))
                (name (subseq base 0 dot-pos))
-               ;; 拡張子は codec-info の ext 優先、なければ元ファイルの拡張子
+               ;; Use codec extension if available, else original extension
                (ext (or ext (subseq base dot-pos)))
                (res (visp-options-res opts))
                (res-suffix (if res (format nil "_~a" res) ""))

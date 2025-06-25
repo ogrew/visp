@@ -4,14 +4,13 @@
   "Validate output path before ffmpeg execution"
   (let* ((output-pathname (pathname output))
          (output-dir (uiop:pathname-directory-pathname output-pathname)))
-    ;; ディレクトリ存在確認
-    ;; 相対パスの場合はカレントディレクトリからの解決を行う
+    ;; Check directory existence (resolve relative paths from current directory)
     (unless (uiop:directory-exists-p output-dir)
       (format t "~a Output directory does not exist: ~a~%" 
               (log-tag "error") (namestring output-dir))
       (uiop:quit 1))
     
-    ;; 出力ファイル名の基本チェック
+    ;; Basic output filename validation
     (let ((filename (file-namestring output-pathname)))
       (when (string= filename "")
         (format t "~a Invalid output filename: ~a~%" 
@@ -24,14 +23,14 @@
     (let ((file-size (with-open-file (stream output :direction :input 
                                              :if-does-not-exist nil)
                        (when stream (file-length stream)))))
-      ;; 0バイトまたは非常に小さいファイル（ヘッダーのみ等）は削除
+      ;; Delete empty or very small files (header-only, etc.)
       (when (and file-size (< file-size 1024))
         (delete-file output)
         (format t "~a Cleaned up incomplete output file: ~a~%" 
                 (log-tag "info") output)))))
 
 (defun run-cmd (cmd output dry-run)
-  ;; Phase 1: 事前検証
+  ;; Pre-execution validation
   (validate-output-path output)
   
   (when (probe-file output)
@@ -44,11 +43,11 @@
         (format t "~a Command: ~{~a ~}~%" (log-tag "dry-run") cmd))
       (progn
         (format t "~a Running: ~{~a ~}~%" (log-tag "info") cmd)
-        ;; Phase 1: 実行前後でのクリーンアップ対応準備
+        ;; Error handling with cleanup
         (handler-case
             (uiop:run-program cmd :output t :error-output t)
           (error (e)
-            ;; 簡易的なエラー処理（Phase 2で本格化）
+            ;; Basic error handling (to be enhanced later)
             (cleanup-partial-output output)
             (error e))))))
 
@@ -116,7 +115,7 @@
          (width (getf first-video-info :width))
          (height (getf first-video-info :height)))
     
-    ;; defensive check
+    ;; Ensure video metadata is valid
     (unless (and fps width height)
       (format t "~a Failed to retrieve fps/width/height from ~a~%" (log-tag "error") (car files))
       (format t "~a Check if the file is a valid video with proper metadata.~%" (log-tag "error"))
@@ -148,27 +147,27 @@
          (filters '())
          (cmd (list "ffmpeg" "-y")))
 
-    ;; ループ再生（inputより先に無いといけないらしい）
+    ;; Loop playback (must come before input argument)
     (when repeat
       (setf cmd (append cmd 
         (list "-stream_loop" (format nil "~a" (1- repeat))))))
 
     (setf cmd (append cmd (list "-i" input)))
 
-    ;; 解像度（縦：横）
+    ;; Resolution scaling
     (when scale
       (destructuring-bind (w . h) scale
         (push (format nil "scale=~A:~A" w h) filters)))
 
-    ;; 逆再生
+    ;; Reverse playback
     (when rev
       (push "reverse" filters))
     
-    ;; 速度変更
+    ;; Speed adjustment
     (when speed
       (push (format nil "setpts=PTS/~a" speed) filters))
     
-    ;; フリップ操作
+    ;; Video flipping
     (when hflip
       (push "hflip" filters))
     
@@ -179,13 +178,12 @@
       (push "format=gray" filters))
 
     (when filters
-      ;; OK: -vf "scale=1920:1080,reverse"
-      ;; NG: -vf "reverse,scale=1920:1080"
+      ;; Filter order matters: scale before effects like reverse
       (let* ((filters-str (format nil "~{~a~^,~}" (reverse filters)))
               (vf-arg (list "-vf" filters-str)))
         (setf cmd (append cmd vf-arg))))
 
-    ;; コーデック
+    ;; Video codec settings
     (when codec-info
       (let ((encoder (getf codec-info :encoder))
             (pix-fmt (getf codec-info :pix_fmt)))
@@ -193,15 +191,15 @@
         (when pix-fmt
           (setf cmd (append cmd (list "-pix_fmt" pix-fmt))))))
 
-    ;; ミュート
+    ;; Audio removal
     (when mute
       (setf cmd (append cmd (list "-an"))))
 
-    ;; フレームレート
+    ;; Frame rate
     (when fps
       (setf cmd (append cmd (list "-r" (format nil "~a" fps)))))
 
-    ;; 出力ファイル名
+    ;; Add output filename
     (setf cmd (append cmd (list output))) cmd))
 
 (defun encoder-available-p (name)
